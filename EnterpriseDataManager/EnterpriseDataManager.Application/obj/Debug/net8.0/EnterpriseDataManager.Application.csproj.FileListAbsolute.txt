@@ -1,0 +1,12 @@
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Application.deps.json
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Application.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Application.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.AssemblyInfoInputs.cache
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.AssemblyInfo.cs
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.csproj.CoreCompileInputs.cache
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.sourcelink.json
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\refint\EnterpriseDataManager.Application.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\ref\EnterpriseDataManager.Application.dll

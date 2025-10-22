@@ -12,6 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <Compile Remove="Views\NewFolder1\**" />
+    <Content Remove="NewFolder\**" />
+    <Content Remove="Views\NewFolder1\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <EmbeddedResource Remove="Views\NewFolder1\**" />
+    <None Remove="NewFolder\**" />
+    <None Remove="Views\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.19" />
@@ -23,6 +34,22 @@
 
   <ItemGroup>
     <ContainerPort Include="8081" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EnterpriseDataManager.Application\EnterpriseDataManager.Application.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.Common\EnterpriseDataManager.Common.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.Core\EnterpriseDataManager.Core.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.Data\EnterpriseDataManager.Data.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.Infrastructure\EnterpriseDataManager.Infrastructure.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.IntegrationTests\EnterpriseDataManager.IntegrationTests.csproj" />
+    <ProjectReference Include="..\EnterpriseDataManager.UnitTests\EnterpriseDataManager.UnitTests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\Api\" />
+    <Folder Include="Views\ArchivePlan\" />
+    <Folder Include="Views\Recovery\" />
   </ItemGroup>
 
 </Project>

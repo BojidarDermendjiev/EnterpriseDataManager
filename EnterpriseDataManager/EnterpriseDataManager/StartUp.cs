@@ -3,7 +3,7 @@ namespace EnterpriseDataManager
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
 
-    using Data;
+    using EnterpriseDataManager.Data;
 
     public class StartUp
     {
@@ -29,6 +29,7 @@ namespace EnterpriseDataManager
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             });
+
             builder.Services.AddControllersWithViews();
 
             WebApplication app = builder.Build();

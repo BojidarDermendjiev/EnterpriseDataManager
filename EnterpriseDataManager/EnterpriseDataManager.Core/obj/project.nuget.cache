@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "5O+5EDa/TRA=",
+  "success": true,
+  "projectFilePath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\bozhi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.18\\microsoft.windowsdesktop.app.ref.8.0.18.nupkg.sha512",
+    "C:\\Users\\bozhi\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.18\\microsoft.netcore.app.ref.8.0.18.nupkg.sha512",
+    "C:\\Users\\bozhi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.18\\microsoft.aspnetcore.app.ref.8.0.18.nupkg.sha512"
+  ],
+  "logs": []
+}
