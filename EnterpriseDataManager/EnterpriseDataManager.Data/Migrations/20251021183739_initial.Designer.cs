@@ -13,7 +13,7 @@ namespace EnterpriseDataManager.Data.Migrations
 {
     [DbContext(typeof(EnterpriseDataManagerDbContext))]
     [Migration("20251021183739_initial")]
-    partial class initial
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
