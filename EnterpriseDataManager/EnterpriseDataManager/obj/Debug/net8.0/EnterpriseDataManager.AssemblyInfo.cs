@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnterpriseDataManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7ed358a5621df810a2849856879a8db783bb5f7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ced70939ac808abba9d1bf3f3af80ba75c05e651")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnterpriseDataManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnterpriseDataManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

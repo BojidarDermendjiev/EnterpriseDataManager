@@ -189,7 +189,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Common\\EnterpriseDataManager.Common.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Common\\EnterpriseDataManager.Common.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

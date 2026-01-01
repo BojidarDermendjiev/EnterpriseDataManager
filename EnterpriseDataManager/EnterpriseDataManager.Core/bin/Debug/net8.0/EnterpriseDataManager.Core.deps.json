@@ -7,14 +7,30 @@
   "targets": {
     ".NETCoreApp,Version=v8.0": {
       "EnterpriseDataManager.Core/1.0.0": {
+        "dependencies": {
+          "EnterpriseDataManager.Common": "1.0.0"
+        },
         "runtime": {
           "EnterpriseDataManager.Core.dll": {}
+        }
+      },
+      "EnterpriseDataManager.Common/1.0.0": {
+        "runtime": {
+          "EnterpriseDataManager.Common.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
   },
   "libraries": {
     "EnterpriseDataManager.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EnterpriseDataManager.Common/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
