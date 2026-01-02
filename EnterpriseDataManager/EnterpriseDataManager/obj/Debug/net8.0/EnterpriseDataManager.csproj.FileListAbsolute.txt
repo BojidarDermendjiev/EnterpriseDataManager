@@ -140,7 +140,6 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\n
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\staticwebassets.development.json
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\Enterpri.932E1223.Up2Date
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\EnterpriseDataManager.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\refint\EnterpriseDataManager.dll
@@ -395,3 +394,8 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\n
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\EnterpriseDataManager.IntegrationTests.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\EnterpriseDataManager.UnitTests.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\EnterpriseDataManager.MvcApplicationPartsAssemblyInfo.cs
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\AutoMapper.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\FluentValidation.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\MediatR.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\MediatR.Contracts.dll

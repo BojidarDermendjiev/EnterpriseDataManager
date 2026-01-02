@@ -19,7 +19,9 @@ public interface IArchiveJobRepository : IRepository<ArchiveJob>
     Task<IReadOnlyList<ArchiveJob>> GetRunningJobsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ArchiveJob>> GetPendingJobsAsync(CancellationToken cancellationToken = default);
     Task<ArchiveJob?> GetWithItemsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ArchiveJob?> GetByIdWithItemsAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ArchiveJob>> GetJobsInDateRangeAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ArchiveJob>> GetScheduledJobsDueAsync(DateTimeOffset asOf, CancellationToken cancellationToken = default);
 }
 
 public interface IRecoveryJobRepository : IRepository<RecoveryJob>
@@ -40,6 +42,7 @@ public interface IRetentionPolicyRepository : IRepository<RetentionPolicy>
 {
     Task<RetentionPolicy?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<RetentionPolicy>> GetPoliciesWithLegalHoldAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RetentionPolicy>> GetLegalHoldPoliciesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<RetentionPolicy>> GetImmutablePoliciesAsync(CancellationToken cancellationToken = default);
 }
 

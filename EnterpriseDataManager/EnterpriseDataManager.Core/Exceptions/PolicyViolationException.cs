@@ -76,6 +76,27 @@ public class EntityNotFoundException : DomainException
 
     public static EntityNotFoundException For<T>(Guid id) where T : class
         => new(typeof(T).Name, id);
+
+    public static EntityNotFoundException ForArchivePlan(Guid id)
+        => new("ArchivePlan", id);
+
+    public static EntityNotFoundException ForArchiveJob(Guid id)
+        => new("ArchiveJob", id);
+
+    public static EntityNotFoundException ForArchiveItem(Guid id)
+        => new("ArchiveItem", id);
+
+    public static EntityNotFoundException ForRecoveryJob(Guid id)
+        => new("RecoveryJob", id);
+
+    public static EntityNotFoundException ForStorageProvider(Guid id)
+        => new("StorageProvider", id);
+
+    public static EntityNotFoundException ForRetentionPolicy(Guid id)
+        => new("RetentionPolicy", id);
+
+    public static EntityNotFoundException ForAuditRecord(Guid id)
+        => new("AuditRecord", id);
 }
 
 public class ConcurrencyException : DomainException

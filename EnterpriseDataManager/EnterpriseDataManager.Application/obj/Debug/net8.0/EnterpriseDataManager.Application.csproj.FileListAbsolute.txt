@@ -10,3 +10,9 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\refint\EnterpriseDataManager.Application.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\ref\EnterpriseDataManager.Application.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\EnterpriseDataManager.Application.csproj.AssemblyReference.cache
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Common.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Core.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Common.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\bin\Debug\net8.0\EnterpriseDataManager.Core.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Application\obj\Debug\net8.0\Enterpri.AAF6C7D1.Up2Date

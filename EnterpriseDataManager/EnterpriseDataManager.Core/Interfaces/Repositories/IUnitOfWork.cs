@@ -4,13 +4,13 @@ using EnterpriseDataManager.Core.Entities;
 
 public interface IUnitOfWork : IDisposable
 {
-    IRepository<ArchivePlan> ArchivePlans { get; }
-    IRepository<ArchiveJob> ArchiveJobs { get; }
+    IArchivePlanRepository ArchivePlans { get; }
+    IArchiveJobRepository ArchiveJobs { get; }
     IRepository<ArchiveItem> ArchiveItems { get; }
-    IRepository<RecoveryJob> RecoveryJobs { get; }
-    IRepository<RetentionPolicy> RetentionPolicies { get; }
-    IRepository<StorageProvider> StorageProviders { get; }
-    IRepository<AuditRecord> AuditRecords { get; }
+    IRecoveryJobRepository RecoveryJobs { get; }
+    IRetentionPolicyRepository RetentionPolicies { get; }
+    IStorageProviderRepository StorageProviders { get; }
+    IAuditRecordRepository AuditRecords { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(string? userId, CancellationToken cancellationToken = default);
