@@ -1,0 +1,6 @@
+{
+  "EnterpriseDataManager.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Common",
+  "EnterpriseDataManager.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core",
+  "EnterpriseDataManager.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data",
+  "EnterpriseDataManager.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure"
+}

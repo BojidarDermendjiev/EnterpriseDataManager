@@ -305,7 +305,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -329,6 +333,14 @@
               "version": "[8.0.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[8.0.0, )"
             },
@@ -398,7 +410,14 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj"
+              },
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data\\EnterpriseDataManager.Data.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data\\EnterpriseDataManager.Data.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -416,6 +435,64 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "AWSSDK.S3": {
+              "target": "Package",
+              "version": "[3.7.305.23, )"
+            },
+            "Azure.Storage.Blobs": {
+              "target": "Package",
+              "version": "[12.19.1, )"
+            },
+            "Cronos": {
+              "target": "Package",
+              "version": "[0.8.4, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.2.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Hosting.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[5.0.1, )"
+            },
+            "System.DirectoryServices.Protocols": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[7.2.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -477,7 +554,14 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj"
+              },
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure\\EnterpriseDataManager.Infrastructure.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure\\EnterpriseDataManager.Infrastructure.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -496,9 +580,49 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[6.12.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Testing": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.8.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.70, )"
             },
             "coverlet.collector": {
               "target": "Package",
@@ -574,7 +698,14 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core\\EnterpriseDataManager.Core.csproj"
+              },
+              "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure\\EnterpriseDataManager.Infrastructure.csproj": {
+                "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure\\EnterpriseDataManager.Infrastructure.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -593,9 +724,29 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[6.12.0, )"
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.8.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.70, )"
             },
             "coverlet.collector": {
               "target": "Package",
@@ -736,9 +887,17 @@
               "target": "Package",
               "version": "[8.0.19, )"
             },
+            "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[8.0.7, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
             }
           },
           "imports": [

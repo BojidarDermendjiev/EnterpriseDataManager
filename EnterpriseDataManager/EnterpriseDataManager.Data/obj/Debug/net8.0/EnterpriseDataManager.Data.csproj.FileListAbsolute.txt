@@ -11,3 +11,8 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\obj\De
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\obj\Debug\net8.0\refint\EnterpriseDataManager.Data.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\obj\Debug\net8.0\EnterpriseDataManager.Data.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\obj\Debug\net8.0\ref\EnterpriseDataManager.Data.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\bin\Debug\net8.0\EnterpriseDataManager.Common.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\bin\Debug\net8.0\EnterpriseDataManager.Core.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\bin\Debug\net8.0\EnterpriseDataManager.Core.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\bin\Debug\net8.0\EnterpriseDataManager.Common.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Data\obj\Debug\net8.0\Enterpri.5D5CB151.Up2Date

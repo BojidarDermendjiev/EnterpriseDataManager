@@ -1,0 +1,250 @@
+@{
+    ViewData["Title"] = "Create Archive Plan";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Create Archive Plan</h1>
+        <p class="page-subtitle">Configure a new data archiving schedule</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Index" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Plans
+        </a>
+    </div>
+</div>
+
+<form>
+    <div class="grid-2">
+        <!-- Basic Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Basic Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Plan Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" placeholder="e.g., Daily Database Backup" required />
+                    <div class="form-helper">A unique name to identify this archive plan</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="3" placeholder="Describe the purpose and scope of this archive plan..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Source Path <span class="required">*</span></label>
+                    <div class="d-flex gap-1">
+                        <input type="text" class="form-control" placeholder="/path/to/source/data" required style="flex: 1;" />
+                        <button type="button" class="btn btn-secondary">Browse</button>
+                    </div>
+                    <div class="form-helper">The directory or file path to archive</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Security Level <span class="required">*</span></label>
+                    <select class="form-control form-select" required>
+                        <option value="">Select security level...</option>
+                        <option value="public">Public - Unrestricted access</option>
+                        <option value="internal" selected>Internal - Organization only</option>
+                        <option value="confidential">Confidential - Limited access</option>
+                        <option value="restricted">Restricted - Highly sensitive</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="isActive" checked />
+                        <label class="form-check-label" for="isActive">Activate plan after creation</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Configuration -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Schedule Configuration</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Schedule Type <span class="required">*</span></label>
+                    <select class="form-control form-select" id="scheduleType" required>
+                        <option value="">Select schedule type...</option>
+                        <option value="manual">Manual (On Demand)</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily" selected>Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="custom">Custom (Cron Expression)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Time</label>
+                    <input type="time" class="form-control" value="02:00" />
+                    <div class="form-helper">Time of day to run the archive job</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Day of Week</label>
+                    <select class="form-control form-select" disabled>
+                        <option value="">Not applicable for daily schedule</option>
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cron Expression</label>
+                    <input type="text" class="form-control" placeholder="0 2 * * *" disabled />
+                    <div class="form-helper">Advanced scheduling using cron syntax</div>
+                </div>
+
+                <div class="alert alert-info">
+                    <div class="alert-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">Schedule Preview</div>
+                        <div>This job will run <strong>daily at 02:00 AM</strong>. Next run: Tomorrow at 02:00 AM.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Configuration -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Storage Configuration</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Storage Provider <span class="required">*</span></label>
+                    <select class="form-control form-select" required>
+                        <option value="">Select storage provider...</option>
+                        <option value="1">Primary NAS Storage (Local)</option>
+                        <option value="2" selected>AWS S3 - us-east-1 (S3)</option>
+                        <option value="3">Azure Blob - West Europe (Azure)</option>
+                        <option value="4">Tape Archive System (Tape)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Path</label>
+                    <input type="text" class="form-control" placeholder="archives/{plan-name}/{date}" />
+                    <div class="form-helper">Path within the storage provider. Use {date}, {time}, {plan-name} placeholders.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Retention Policy</label>
+                    <select class="form-control form-select">
+                        <option value="">No retention policy</option>
+                        <option value="1">Standard - 90 days</option>
+                        <option value="2" selected>Extended - 1 year</option>
+                        <option value="3">Long Term - 7 years</option>
+                        <option value="4">Legal Hold - Indefinite</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="compress" checked />
+                        <label class="form-check-label" for="compress">Compress archives (recommended)</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="encrypt" checked />
+                        <label class="form-check-label" for="encrypt">Encrypt at rest</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Options -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Advanced Options</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Job Priority</label>
+                    <select class="form-control form-select">
+                        <option value="low">Low</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">File Filters</label>
+                    <input type="text" class="form-control" placeholder="*.log, *.tmp" />
+                    <div class="form-helper">Comma-separated patterns of files to exclude</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Maximum File Size (MB)</label>
+                    <input type="number" class="form-control" placeholder="No limit" />
+                    <div class="form-helper">Skip files larger than this size</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="incremental" />
+                        <label class="form-check-label" for="incremental">Incremental backup (only changed files)</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="verifyHash" checked />
+                        <label class="form-check-label" for="verifyHash">Verify file integrity with checksums</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="notifications" checked />
+                        <label class="form-check-label" for="notifications">Send email notifications on completion/failure</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="card mt-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-secondary fs-sm">
+                <span class="required">*</span> Required fields
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary">Save as Draft</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Create Archive Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

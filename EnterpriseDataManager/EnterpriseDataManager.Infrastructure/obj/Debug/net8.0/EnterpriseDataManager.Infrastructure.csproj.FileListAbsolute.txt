@@ -10,3 +10,11 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastruct
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\obj\Debug\net8.0\refint\EnterpriseDataManager.Infrastructure.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\obj\Debug\net8.0\EnterpriseDataManager.Infrastructure.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\obj\Debug\net8.0\ref\EnterpriseDataManager.Infrastructure.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\obj\Debug\net8.0\EnterpriseDataManager.Infrastructure.csproj.AssemblyReference.cache
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Common.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Core.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Data.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Core.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Data.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\bin\Debug\net8.0\EnterpriseDataManager.Common.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Infrastructure\obj\Debug\net8.0\Enterpri.485EE337.Up2Date

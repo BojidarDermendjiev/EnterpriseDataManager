@@ -1,0 +1,342 @@
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Audit Logs</h1>
+        <p class="page-subtitle">Track all system activities and user actions</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Logs
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid mb-3">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">12,847</div>
+        <div class="stat-label">Total Events (30 days)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon success">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">12,789</div>
+        <div class="stat-label">Successful Actions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon danger">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">58</div>
+        <div class="stat-label">Failed Actions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">24</div>
+        <div class="stat-label">Active Users (24h)</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
+            <div class="header-search" style="flex: 1; min-width: 200px;">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Search logs..." class="form-control" style="padding-left: 2.25rem;" />
+            </div>
+            <select class="form-control form-select" style="width: auto; min-width: 150px;">
+                <option value="">All Actions</option>
+                <option value="archive.created">Archive Created</option>
+                <option value="archive.completed">Archive Completed</option>
+                <option value="archive.failed">Archive Failed</option>
+                <option value="recovery.started">Recovery Started</option>
+                <option value="recovery.completed">Recovery Completed</option>
+                <option value="user.login">User Login</option>
+                <option value="user.logout">User Logout</option>
+                <option value="config.changed">Configuration Changed</option>
+            </select>
+            <select class="form-control form-select" style="width: auto; min-width: 130px;">
+                <option value="">All Users</option>
+                <option value="admin">Admin User</option>
+                <option value="john">John Smith</option>
+                <option value="sarah">Sarah Johnson</option>
+                <option value="mike">Mike Chen</option>
+                <option value="system">System</option>
+            </select>
+            <select class="form-control form-select" style="width: auto; min-width: 120px;">
+                <option value="">All Status</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
+            </select>
+            <input type="date" class="form-control" style="width: auto;" placeholder="From" />
+            <input type="date" class="form-control" style="width: auto;" placeholder="To" />
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Audit Log Entries</h3>
+        <span class="fs-sm text-secondary">Real-time activity monitoring</span>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Resource</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Today 11:32:15</div>
+                        <div class="fs-xs text-muted">2 minutes ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem;">JS</div>
+                            <div>
+                                <div>John Smith</div>
+                                <div class="fs-xs text-muted">Finance</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info-color);">Recovery Started</span>
+                    </td>
+                    <td>
+                        <div>Financial Reports Q3</div>
+                        <div class="fs-xs text-muted">Archive Job</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">Recovery job REC-2024-000089 initiated</div>
+                    </td>
+                    <td><code class="fs-xs">192.168.1.105</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Today 11:30:00</div>
+                        <div class="fs-xs text-muted">4 minutes ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem; background: var(--secondary-color);">SY</div>
+                            <div>
+                                <div>System</div>
+                                <div class="fs-xs text-muted">Automated</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">Archive Completed</span>
+                    </td>
+                    <td>
+                        <div>Daily Backup - Customer Data</div>
+                        <div class="fs-xs text-muted">JOB-2024-001244</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">2.1 GB archived (1,247 files)</div>
+                    </td>
+                    <td><code class="fs-xs">127.0.0.1</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Today 10:15:22</div>
+                        <div class="fs-xs text-muted">1 hour ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem;">AU</div>
+                            <div>
+                                <div>Admin User</div>
+                                <div class="fs-xs text-muted">IT Operations</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">Config Changed</span>
+                    </td>
+                    <td>
+                        <div>AWS S3 Storage Provider</div>
+                        <div class="fs-xs text-muted">Storage Provider</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">Updated storage quota from 4TB to 5TB</div>
+                    </td>
+                    <td><code class="fs-xs">192.168.1.10</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Today 09:45:00</div>
+                        <div class="fs-xs text-muted">2 hours ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem; background: var(--secondary-color);">SY</div>
+                            <div>
+                                <div>System</div>
+                                <div class="fs-xs text-muted">Scheduler</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(37, 99, 235, 0.1); color: var(--primary-color);">Archive Started</span>
+                    </td>
+                    <td>
+                        <div>Weekly - User Documents</div>
+                        <div class="fs-xs text-muted">JOB-2024-001246</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">Scheduled archive job started</div>
+                    </td>
+                    <td><code class="fs-xs">127.0.0.1</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Today 09:00:05</div>
+                        <div class="fs-xs text-muted">2.5 hours ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem;">SJ</div>
+                            <div>
+                                <div>Sarah Johnson</div>
+                                <div class="fs-xs text-muted">HR</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(100, 116, 139, 0.1); color: var(--secondary-color);">User Login</span>
+                    </td>
+                    <td>
+                        <div>Enterprise Data Manager</div>
+                        <div class="fs-xs text-muted">Application</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">Successful login via SSO</div>
+                    </td>
+                    <td><code class="fs-xs">192.168.1.152</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">Yesterday 23:45:12</div>
+                        <div class="fs-xs text-muted">12 hours ago</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem; background: var(--secondary-color);">SY</div>
+                            <div>
+                                <div>System</div>
+                                <div class="fs-xs text-muted">Retention Engine</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color);">Retention Applied</span>
+                    </td>
+                    <td>
+                        <div>45 Archives</div>
+                        <div class="fs-xs text-muted">Batch Operation</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Success</span></td>
+                    <td>
+                        <div class="fs-sm">45 archives marked for deletion (expired)</div>
+                    </td>
+                    <td><code class="fs-xs">127.0.0.1</code></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fw-bold">2 days ago 12:00:47</div>
+                        <div class="fs-xs text-muted">Jan 1, 2024</div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem; background: var(--secondary-color);">SY</div>
+                            <div>
+                                <div>System</div>
+                                <div class="fs-xs text-muted">Scheduler</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color);">Archive Failed</span>
+                    </td>
+                    <td>
+                        <div>Quarterly - Financial Reports</div>
+                        <div class="fs-xs text-muted">JOB-2024-001240</div>
+                    </td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td>
+                        <div class="fs-sm text-danger">Storage connection timeout after 3 retries</div>
+                    </td>
+                    <td><code class="fs-xs">127.0.0.1</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="fs-sm text-secondary">Showing 1-7 of 12,847 events</span>
+        <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline" disabled>Previous</button>
+            <button class="btn btn-sm btn-primary">1</button>
+            <button class="btn btn-sm btn-outline">2</button>
+            <button class="btn btn-sm btn-outline">3</button>
+            <button class="btn btn-sm btn-outline">...</button>
+            <button class="btn btn-sm btn-outline">1,836</button>
+            <button class="btn btn-sm btn-outline">Next</button>
+        </div>
+    </div>
+</div>

@@ -80,12 +80,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/ArchiveJobs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXJjaGl2ZUpvYnNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/ArchivePlans/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXJjaGl2ZVBsYW5zXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/ArchivePlans/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXJjaGl2ZVBsYW5zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/AuditLogs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXVkaXRMb2dzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/RecoveryJobs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVjb3ZlcnlKb2JzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/RetentionPolicies/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0ZW50aW9uUG9saWNpZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/Shared/Error.cshtml]
@@ -98,6 +122,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/StorageProviders/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3RvcmFnZVByb3ZpZGVyc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/EnterpriseDataManager/EnterpriseDataManager/EnterpriseDataManager/Views/_ViewImports.cshtml]

@@ -1,0 +1,346 @@
+@{
+    ViewData["Title"] = "Archive Jobs";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Archive Jobs</h1>
+        <p class="page-subtitle">Monitor and manage archive operations</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Refresh
+        </button>
+        <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Run Manual Job
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid mb-3">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">Running Jobs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">5</div>
+        <div class="stat-label">Scheduled Today</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon success">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">147</div>
+        <div class="stat-label">Completed (7 days)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon danger">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">2</div>
+        <div class="stat-label">Failed (7 days)</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active">All Jobs</button>
+    <button class="tab">Running</button>
+    <button class="tab">Scheduled</button>
+    <button class="tab">Completed</button>
+    <button class="tab">Failed</button>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
+            <div class="header-search" style="flex: 1; min-width: 200px;">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Search jobs..." class="form-control" style="padding-left: 2.25rem;" />
+            </div>
+            <select class="form-control form-select" style="width: auto; min-width: 150px;">
+                <option value="">All Plans</option>
+                <option value="1">Daily Backup - Production DB</option>
+                <option value="2">Weekly - User Documents</option>
+                <option value="3">Monthly - Email Archives</option>
+            </select>
+            <select class="form-control form-select" style="width: auto; min-width: 130px;">
+                <option value="">All Priority</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+            </select>
+            <input type="date" class="form-control" style="width: auto;" />
+        </div>
+    </div>
+</div>
+
+<!-- Jobs Table -->
+<div class="card">
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Archive Plan</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Priority</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001247</code></td>
+                    <td>
+                        <div class="fw-bold">Daily Backup - Production DB</div>
+                        <div class="fs-xs text-muted">1.2 GB / 1.8 GB processed</div>
+                    </td>
+                    <td><span class="status-badge status-running">Running</span></td>
+                    <td style="min-width: 150px;">
+                        <div class="d-flex justify-content-between fs-xs mb-1">
+                            <span>67%</span>
+                            <span>~12 min remaining</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 67%"></div>
+                        </div>
+                    </td>
+                    <td><span class="priority-high">High</span></td>
+                    <td>
+                        <div>Today 02:00</div>
+                        <div class="fs-xs text-muted">25 min ago</div>
+                    </td>
+                    <td>25m 14s</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Details">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-danger" title="Cancel">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001246</code></td>
+                    <td>
+                        <div class="fw-bold">Weekly Archive - User Documents</div>
+                        <div class="fs-xs text-muted">450 MB / 1.3 GB processed</div>
+                    </td>
+                    <td><span class="status-badge status-running">Running</span></td>
+                    <td style="min-width: 150px;">
+                        <div class="d-flex justify-content-between fs-xs mb-1">
+                            <span>34%</span>
+                            <span>~28 min remaining</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 34%"></div>
+                        </div>
+                    </td>
+                    <td><span class="priority-normal">Normal</span></td>
+                    <td>
+                        <div>Today 01:45</div>
+                        <div class="fs-xs text-muted">40 min ago</div>
+                    </td>
+                    <td>40m 02s</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Details">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-danger" title="Cancel">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001245</code></td>
+                    <td>
+                        <div class="fw-bold">Monthly - Email Archives</div>
+                        <div class="fs-xs text-muted">Scheduled</div>
+                    </td>
+                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                    <td style="min-width: 150px;">
+                        <div class="fs-xs text-muted">Starts in 2h 15m</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </td>
+                    <td><span class="priority-normal">Normal</span></td>
+                    <td>
+                        <div>Today 04:30</div>
+                        <div class="fs-xs text-muted">Scheduled</div>
+                    </td>
+                    <td>-</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Details">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Run Now">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001244</code></td>
+                    <td>
+                        <div class="fw-bold">Daily Backup - Production DB</div>
+                        <div class="fs-xs text-muted">2.1 GB archived (1,247 files)</div>
+                    </td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td style="min-width: 150px;">
+                        <div class="d-flex justify-content-between fs-xs mb-1">
+                            <span>100%</span>
+                            <span class="text-success">Success</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill success" style="width: 100%"></div>
+                        </div>
+                    </td>
+                    <td><span class="priority-high">High</span></td>
+                    <td>
+                        <div>Yesterday 02:00</div>
+                        <div class="fs-xs text-muted">26 hours ago</div>
+                    </td>
+                    <td>38m 22s</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Details">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Download Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001240</code></td>
+                    <td>
+                        <div class="fw-bold">Quarterly - Financial Reports</div>
+                        <div class="fs-xs text-muted">Error: Storage connection failed</div>
+                    </td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td style="min-width: 150px;">
+                        <div class="d-flex justify-content-between fs-xs mb-1">
+                            <span>12%</span>
+                            <span class="text-danger">Failed</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill danger" style="width: 12%"></div>
+                        </div>
+                    </td>
+                    <td><span class="priority-critical">Critical</span></td>
+                    <td>
+                        <div>2 days ago</div>
+                        <div class="fs-xs text-muted">Jan 1, 12:00 AM</div>
+                    </td>
+                    <td>5m 47s</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Details">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Retry">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="fs-sm text-secondary">Showing 1-5 of 152 jobs</span>
+        <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline" disabled>Previous</button>
+            <button class="btn btn-sm btn-primary">1</button>
+            <button class="btn btn-sm btn-outline">2</button>
+            <button class="btn btn-sm btn-outline">3</button>
+            <button class="btn btn-sm btn-outline">...</button>
+            <button class="btn btn-sm btn-outline">31</button>
+            <button class="btn btn-sm btn-outline">Next</button>
+        </div>
+    </div>
+</div>
