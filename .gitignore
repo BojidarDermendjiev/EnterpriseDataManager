@@ -1,1 +1,77 @@
 .vs/
+# Build outputs
+bin/
+obj/
+out/
+artifacts/
+TestResults/
+*.trx
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage*/
+*.coverage
+*.coveragexml
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider
+.idea/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NCrunch
+_NCrunch_*
+*.ncrunchproject
+
+# VS Code (optional — keep if you share workspace settings)
+.vscode/
+
+# NuGet (legacy packages folder; safe to ignore if using PackageReference)
+packages/
+# Package artifacts
+*.nupkg
+*.snupkg
+
+# Publish profiles and deployment artifacts (often contain secrets)
+Properties/PublishProfiles/*
+*.pubxml
+*.pubxml.user
+*.publishproj
+
+# Environment and config secrets
+.env
+.env.*
+secrets.json
+appsettings.Local.json
+appsettings.*.Local.json
+appsettings.*.Secrets.json
+
+# EF Core
+# Keep migrations tracked. Do NOT ignore the Migrations folder or the ModelSnapshot.
+# Ignore migration bundles or generated SQL dumps if you create them locally.
+migrations.bundle
+*.sql
+
+# Frontend (optional — only if you use a SPA/client build)
+node_modules/
+wwwroot/node_modules/
+wwwroot/dist/
+# If using LibMan and you prefer restore-on-build, you can ignore restored libs:
+# wwwroot/lib/
+
+# OS / miscellaneous
+Thumbs.db
+.DS_Store
