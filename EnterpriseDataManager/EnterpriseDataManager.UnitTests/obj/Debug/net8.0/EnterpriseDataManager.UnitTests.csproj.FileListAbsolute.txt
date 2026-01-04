@@ -192,3 +192,7 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\b
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\EnterpriseDataManager.Core.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\EnterpriseDataManager.Common.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\EnterpriseDataManager.Data.pdb
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Physical.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.UnitTests\bin\Debug\net8.0\Microsoft.Extensions.FileSystemGlobbing.dll

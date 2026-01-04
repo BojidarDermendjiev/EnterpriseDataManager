@@ -1,0 +1,386 @@
+@{
+    ViewData["Title"] = "Archive Plan Details";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Daily Backup - Production Database</h1>
+        <p class="page-subtitle">Archive plan details and execution history</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Index" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Plans
+        </a>
+        <a asp-action="Edit" asp-route-id="@ViewContext.RouteData.Values["id"]" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Plan
+        </a>
+        <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Run Now
+        </button>
+    </div>
+</div>
+
+<!-- Status Banner -->
+<div class="alert alert-success mb-3">
+    <div class="alert-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+    </div>
+    <div class="alert-content">
+        <div class="alert-title">Plan Active</div>
+        <div>This archive plan is currently active and scheduled to run daily at 02:00 AM. Next run: Tomorrow at 02:00 AM.</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Basic Information -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Basic Information</h3>
+            <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Plan Name</div>
+                <div class="detail-value">Daily Backup - Production Database</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Description</div>
+                <div class="detail-value">Automated daily backup of the production database including all tables, stored procedures, and configuration data.</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Source Path</div>
+                <div class="detail-value"><code>/data/production/db</code></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Security Level</div>
+                <div class="detail-value">
+                    <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color);">Restricted</span>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Created</div>
+                <div class="detail-value">January 15, 2024 at 10:30 AM</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Created By</div>
+                <div class="detail-value">Admin User</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Configuration -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Schedule Configuration</h3>
+        </div>
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Schedule Type</div>
+                <div class="detail-value">Daily</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Time</div>
+                <div class="detail-value">02:00 AM</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Timezone</div>
+                <div class="detail-value">UTC (Coordinated Universal Time)</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Cron Expression</div>
+                <div class="detail-value"><code>0 2 * * *</code></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Last Run</div>
+                <div class="detail-value">Today at 02:15 AM <span class="status-badge status-completed ms-2">Completed</span></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Next Run</div>
+                <div class="detail-value">Tomorrow at 02:00 AM</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storage Configuration -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Storage Configuration</h3>
+        </div>
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Storage Provider</div>
+                <div class="detail-value">
+                    <div class="d-flex align-items-center gap-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        AWS S3 - us-east-1
+                    </div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Target Path</div>
+                <div class="detail-value"><code>archives/production-db/{date}</code></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Retention Policy</div>
+                <div class="detail-value">Extended - 1 year</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Compression</div>
+                <div class="detail-value">
+                    <span class="text-success">Enabled</span> (GZIP)
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Encryption</div>
+                <div class="detail-value">
+                    <span class="text-success">Enabled</span> (AES-256)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Options -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Advanced Options</h3>
+        </div>
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Job Priority</div>
+                <div class="detail-value">High</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">File Filters (Excluded)</div>
+                <div class="detail-value"><code>*.log, *.tmp, *.cache</code></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Maximum File Size</div>
+                <div class="detail-value">No limit</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Incremental Backup</div>
+                <div class="detail-value"><span class="text-muted">Disabled</span> (Full backup)</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Integrity Verification</div>
+                <div class="detail-value"><span class="text-success">Enabled</span> (SHA-256 checksums)</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Email Notifications</div>
+                <div class="detail-value"><span class="text-success">Enabled</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Execution History -->
+<div class="card mt-3">
+    <div class="card-header">
+        <h3 class="card-title">Recent Execution History</h3>
+        <a href="#" class="btn btn-sm btn-secondary">View All Jobs</a>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                    <th>Size</th>
+                    <th>Files</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001250</code></td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <div>Today 02:00 AM</div>
+                        <div class="fs-xs text-muted">Completed 02:15 AM</div>
+                    </td>
+                    <td>15 min</td>
+                    <td>2.4 GB</td>
+                    <td>1,245 files</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Recover">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001245</code></td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <div>Yesterday 02:00 AM</div>
+                        <div class="fs-xs text-muted">Completed 02:18 AM</div>
+                    </td>
+                    <td>18 min</td>
+                    <td>2.5 GB</td>
+                    <td>1,267 files</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Recover">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001240</code></td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <div>2 days ago 02:00 AM</div>
+                        <div class="fs-xs text-muted">Completed 02:14 AM</div>
+                    </td>
+                    <td>14 min</td>
+                    <td>2.3 GB</td>
+                    <td>1,230 files</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Recover">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001235</code></td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td>
+                        <div>3 days ago 02:00 AM</div>
+                        <div class="fs-xs text-muted">Failed 02:05 AM</div>
+                    </td>
+                    <td>5 min</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Retry">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="fs-sm">JOB-2024-001230</code></td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <div>4 days ago 02:00 AM</div>
+                        <div class="fs-xs text-muted">Completed 02:16 AM</div>
+                    </td>
+                    <td>16 min</td>
+                    <td>2.4 GB</td>
+                    <td>1,248 files</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-icon btn-outline" title="View Log">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-outline" title="Recover">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Danger Zone -->
+<div class="card mt-3" style="border-color: var(--danger-color);">
+    <div class="card-header" style="border-bottom-color: var(--danger-color);">
+        <h3 class="card-title" style="color: var(--danger-color);">Danger Zone</h3>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="fw-bold">Deactivate Archive Plan</div>
+                <div class="fs-sm text-muted">Pause scheduled executions without deleting the plan</div>
+            </div>
+            <button class="btn btn-secondary">Deactivate</button>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="fw-bold">Delete Archive Plan</div>
+                <div class="fs-sm text-muted">Permanently delete this archive plan and all associated settings</div>
+            </div>
+            <button class="btn btn-danger">Delete Plan</button>
+        </div>
+    </div>
+</div>

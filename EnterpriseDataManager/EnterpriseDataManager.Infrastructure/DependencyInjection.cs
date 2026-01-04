@@ -16,6 +16,7 @@ using EnterpriseDataManager.Infrastructure.Security.NetworkSecurity;
 using EnterpriseDataManager.Infrastructure.Security.RansomwareProtection;
 using EnterpriseDataManager.Infrastructure.Storage;
 using EnterpriseDataManager.Infrastructure.Storage.TapeDevice;
+using EnterpriseDataManager.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -52,8 +53,33 @@ public static class DependencyInjection
         // Identity services
         services.AddIdentityServices(configuration);
 
+        // Core domain services
+        services.AddCoreServices(configuration);
+
         // HTTP client factory
         services.AddHttpClient();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCoreServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // Storage service
+        services.AddScoped<IStorageService, StorageService>();
+
+        // Archival service
+        services.AddScoped<IArchivalService, ArchivalService>();
+
+        // Recovery service
+        services.AddScoped<IRecoveryService, RecoveryService>();
+
+        // Audit service
+        services.AddScoped<IAuditService, AuditService>();
+
+        // Policy engine
+        services.AddScoped<IPolicyEngine, PolicyEngine>();
 
         return services;
     }
@@ -63,7 +89,10 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         // Local filesystem provider
-        services.AddSingleton<LocalFilesystemProvider>();
+        var localStoragePath = configuration.GetValue<string>("Storage:Local:RootPath")
+            ?? Path.Combine(Path.GetTempPath(), "edm-storage");
+        services.AddSingleton<LocalFilesystemProvider>(sp =>
+            new LocalFilesystemProvider(localStoragePath));
 
         // S3 provider (optional based on configuration)
         var s3Section = configuration.GetSection("Storage:S3");

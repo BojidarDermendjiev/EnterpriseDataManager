@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnterpriseDataManager.IntegrationTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a336bf699d44889ffea49936474b6e7ae9b3d016")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+731e5e83fa34ab02bd4bae3920fa220823662434")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnterpriseDataManager.IntegrationTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnterpriseDataManager.IntegrationTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

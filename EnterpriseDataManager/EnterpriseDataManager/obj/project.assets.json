@@ -5612,6 +5612,7 @@
           "Microsoft.EntityFrameworkCore": "8.0.0",
           "Microsoft.EntityFrameworkCore.Relational": "8.0.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0",
+          "Microsoft.Extensions.Configuration.Json": "8.0.0",
           "Microsoft.Extensions.Identity.Core": "8.0.0"
         },
         "compile": {
@@ -11353,6 +11354,7 @@
           "Microsoft.EntityFrameworkCore": "8.0.0",
           "Microsoft.EntityFrameworkCore.Relational": "8.0.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0",
+          "Microsoft.Extensions.Configuration.Json": "8.0.0",
           "Microsoft.Extensions.Identity.Core": "8.0.0"
         },
         "compile": {
@@ -22398,9 +22400,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.csproj",
-      "projectName": "EnterpriseDataManager",
-      "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.csproj",
+      "projectUniqueName": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager\\EnterPriceDataManager.csproj",
+      "projectName": "EnterPriceDataManager",
+      "projectPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager\\EnterPriceDataManager.csproj",
       "packagesPath": "C:\\Users\\bozhi\\.nuget\\packages\\",
       "outputPath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager\\obj\\",
       "projectStyle": "PackageReference",

@@ -726,3 +726,4 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\n
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
