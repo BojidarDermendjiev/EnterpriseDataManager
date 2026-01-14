@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnterpriseDataManager.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+731e5e83fa34ab02bd4bae3920fa220823662434")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b117433d27f13831b6c0dc60d2a32e08808ffede")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnterpriseDataManager.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnterpriseDataManager.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

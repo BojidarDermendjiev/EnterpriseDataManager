@@ -10,3 +10,15 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\refint\EnterpriseDataManager.Common.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.pdb
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\ref\EnterpriseDataManager.Common.dll
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\bin\Debug\net8.0\EnterpriseDataManager.Common.deps.json
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\bin\Debug\net8.0\EnterpriseDataManager.Common.dll
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\bin\Debug\net8.0\EnterpriseDataManager.Common.pdb
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.AssemblyInfoInputs.cache
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.AssemblyInfo.cs
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.csproj.CoreCompileInputs.cache
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.sourcelink.json
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.dll
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\refint\EnterpriseDataManager.Common.dll
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\EnterpriseDataManager.Common.pdb
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Common\obj\Debug\net8.0\ref\EnterpriseDataManager.Common.dll

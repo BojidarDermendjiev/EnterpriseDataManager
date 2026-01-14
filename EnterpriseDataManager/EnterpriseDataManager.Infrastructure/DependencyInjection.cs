@@ -1,5 +1,6 @@
 namespace EnterpriseDataManager.Infrastructure;
 
+using System.IO;
 using Amazon.Runtime;
 using Amazon.S3;
 using Azure.Storage.Blobs;
@@ -19,6 +20,7 @@ using EnterpriseDataManager.Infrastructure.Storage.TapeDevice;
 using EnterpriseDataManager.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using EnterpriseDataManager.Application.Common.Interfaces;
 
 public static class DependencyInjection
 {
@@ -53,7 +55,7 @@ public static class DependencyInjection
         // Identity services
         services.AddIdentityServices(configuration);
 
-        // Core domain services
+        // Core domain services (register core service interfaces used by handlers/app services)
         services.AddCoreServices(configuration);
 
         // HTTP client factory
@@ -72,6 +74,12 @@ public static class DependencyInjection
         // Archival service
         services.AddScoped<IArchivalService, ArchivalService>();
 
+        // Archive service (high-level API for controllers)
+        services.AddScoped<IArchiveService, ArchiveService>();
+
+        // Archive plan service
+        services.AddScoped<IArchivePlanService, ArchivePlanService>();
+
         // Recovery service
         services.AddScoped<IRecoveryService, RecoveryService>();
 
@@ -88,9 +96,10 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Local filesystem provider
+        // Local filesystem provider � register with factory to supply constructor parameters
         var localStoragePath = configuration.GetValue<string>("Storage:Local:RootPath")
             ?? Path.Combine(Path.GetTempPath(), "edm-storage");
+
         services.AddSingleton<LocalFilesystemProvider>(sp =>
             new LocalFilesystemProvider(localStoragePath));
 
@@ -98,20 +107,6 @@ public static class DependencyInjection
         var s3Section = configuration.GetSection("Storage:S3");
         if (s3Section.Exists())
         {
-            //services.AddSingleton<S3CompatibleProvider>(sp =>
-            //{
-            //    var accessKey = s3Section.GetValue<string>("AccessKey") ?? "";
-            //    var secretKey = s3Section.GetValue<string>("SecretKey") ?? "";
-            //    var bucketName = s3Section.GetValue<string>("BucketName") ?? "";
-            //    var endpoint = s3Section.GetValue<string>("Endpoint");
-            //    var region = s3Section.GetValue<string>("Region") ?? "us-east-1";
-
-            //    return new S3CompatibleProvider(
-            //        accessKey, secretKey, bucketName,
-            //        endpoint: endpoint, region: region,
-            //        logger: sp.GetService<Microsoft.Extensions.Logging.ILogger<S3CompatibleProvider>>());
-            //});
-
             services.AddSingleton<S3CompatibleProvider>(sp =>
             {
                 var accessKey = s3Section.GetValue<string>("AccessKey") ?? "";
@@ -147,23 +142,12 @@ public static class DependencyInjection
                 // Match constructor: (string accessKey, IAmazonS3 s3Client, string bucketName, string? prefix = null)
                 return new S3CompatibleProvider(accessKey, s3Client, bucketName, prefix);
             });
-
         }
 
         // Azure provider (optional based on configuration)
         var azureSection = configuration.GetSection("Storage:AzureBlob");
         if (azureSection.Exists())
         {
-            //services.AddSingleton<AzureBlobProvider>(sp =>
-            //{
-            //    var connectionString = azureSection.GetValue<string>("ConnectionString") ?? "";
-            //    var containerName = azureSection.GetValue<string>("ContainerName") ?? "default";
-
-            //    return new AzureBlobProvider(
-            //        connectionString, containerName,
-            //        logger: sp.GetService<Microsoft.Extensions.Logging.ILogger<AzureBlobProvider>>());
-            //});
-
             services.AddSingleton<AzureBlobProvider>(sp =>
             {
                 var connectionString = azureSection.GetValue<string>("ConnectionString") ?? "";
@@ -419,6 +403,10 @@ public static class DependencyInjection
         // Identity Service
         services.AddSingleton<IIdentityService, IdentityService>();
 
+        // User context services needed by app services/filters
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         return services;
     }
 
@@ -473,17 +461,4 @@ public static class DependencyInjection
 
         return services;
     }
-}
-
-public class InfrastructureOptions
-{
-    public IConfiguration? Configuration { get; set; }
-    public bool EnableStorage { get; set; } = true;
-    public bool EnableSecurity { get; set; } = true;
-    public bool EnableNotifications { get; set; } = true;
-    public bool EnableBackgroundJobs { get; set; } = true;
-    public bool EnableLogging { get; set; } = true;
-    public bool EnableEventDispatcher { get; set; } = true;
-    public bool EnableIdentity { get; set; } = true;
-    public bool EnableHttpClient { get; set; } = true;
 }

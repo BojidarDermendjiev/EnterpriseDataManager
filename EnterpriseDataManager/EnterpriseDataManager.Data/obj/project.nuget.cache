@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "beUJkN80OE8=",
+  "dgSpecHash": "EFZ9Yrf6dl0=",
   "success": true,
-  "projectFilePath": "C:\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data\\EnterpriseDataManager.Data.csproj",
+  "projectFilePath": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data\\EnterpriseDataManager.Data.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\bozhi\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\bozhi\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

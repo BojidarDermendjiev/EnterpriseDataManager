@@ -1,0 +1,325 @@
+@model EnterpriseDataManager.Controllers.MVC.SettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Configure system preferences and application settings</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Sidebar Navigation -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body p-0">
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#general" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        General
+                    </a>
+                    <a class="nav-link" href="#archive" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        Archive
+                    </a>
+                    <a class="nav-link" href="#notifications" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        Notifications
+                    </a>
+                    <a class="nav-link" href="#security" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Security
+                    </a>
+                    <a class="nav-link" href="#about" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        About
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane fade show active" id="general">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">General Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="SaveGeneral" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label">Session Timeout (minutes)</label>
+                                <input type="number" class="form-control" name="SessionTimeout" value="@Model.SessionTimeout" min="5" max="120" />
+                                <small class="text-muted">Time before inactive users are logged out</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Max Upload Size (MB)</label>
+                                <input type="number" class="form-control" name="MaxUploadSize" value="@Model.MaxUploadSize" min="1" max="1000" />
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.EnableAuditLogging)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="enableAuditLogging" name="EnableAuditLogging" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="enableAuditLogging" name="EnableAuditLogging" value="true" />
+                                    }
+                                    <label class="form-check-label" for="enableAuditLogging">Enable Audit Logging</label>
+                                </div>
+                                <small class="text-muted">Log all user actions for compliance</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.EnableRateLimiting)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="enableRateLimiting" name="EnableRateLimiting" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="enableRateLimiting" name="EnableRateLimiting" value="true" />
+                                    }
+                                    <label class="form-check-label" for="enableRateLimiting">Enable Rate Limiting</label>
+                                </div>
+                                <small class="text-muted">Protect API from abuse</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archive Settings -->
+            <div class="tab-pane fade" id="archive">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Archive Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="SaveArchive" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label">Default Retention Period (days)</label>
+                                <input type="number" class="form-control" name="DefaultRetentionDays" value="@Model.DefaultRetentionDays" min="1" max="3650" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Max Concurrent Jobs</label>
+                                <input type="number" class="form-control" name="MaxConcurrentJobs" value="@Model.MaxConcurrentJobs" min="1" max="20" />
+                                <small class="text-muted">Maximum number of archive jobs running simultaneously</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.CompressionEnabled)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="compressionEnabled" name="CompressionEnabled" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="compressionEnabled" name="CompressionEnabled" value="true" />
+                                    }
+                                    <label class="form-check-label" for="compressionEnabled">Enable Compression</label>
+                                </div>
+                                <small class="text-muted">Compress archived files to save storage space</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.EncryptionEnabled)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="encryptionEnabled" name="EncryptionEnabled" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="encryptionEnabled" name="EncryptionEnabled" value="true" />
+                                    }
+                                    <label class="form-check-label" for="encryptionEnabled">Enable Encryption</label>
+                                </div>
+                                <small class="text-muted">Encrypt archived files at rest</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="tab-pane fade" id="notifications">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Notification Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="SaveNotifications" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.EmailNotificationsEnabled)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" name="EmailNotificationsEnabled" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" name="EmailNotificationsEnabled" value="true" />
+                                    }
+                                    <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                </div>
+                                <small class="text-muted">Receive email alerts for job completions and failures</small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    @if (Model.SlackNotificationsEnabled)
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="slackNotifications" name="SlackNotificationsEnabled" value="true" checked />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" id="slackNotifications" name="SlackNotificationsEnabled" value="true" />
+                                    }
+                                    <label class="form-check-label" for="slackNotifications">Slack Notifications</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Webhook URL</label>
+                                <input type="url" class="form-control" name="WebhookUrl" value="@Model.WebhookUrl" placeholder="https://your-webhook-url.com" />
+                                <small class="text-muted">Send notifications to a custom webhook endpoint</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="tab-pane fade" id="security">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Change Password</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="ChangePassword" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control" name="currentPassword" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" name="newPassword" required minlength="12" />
+                                <small class="text-muted">Minimum 12 characters with uppercase, lowercase, number, and special character</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" name="confirmPassword" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Two-Factor Authentication</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Add an extra layer of security to your account</p>
+                        <button type="button" class="btn btn-outline-primary" onclick="alert('2FA setup will be implemented')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Enable 2FA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About -->
+            <div class="tab-pane fade" id="about">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">About Enterprise Data Manager</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 200px;">Application Name</th>
+                                    <td>@Model.ApplicationName</td>
+                                </tr>
+                                <tr>
+                                    <th>Version</th>
+                                    <td>@Model.Version</td>
+                                </tr>
+                                <tr>
+                                    <th>Environment</th>
+                                    <td><span class="badge bg-primary">@Model.Environment</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Current User</th>
+                                    <td>@Model.CurrentUserEmail</td>
+                                </tr>
+                                <tr>
+                                    <th>Database</th>
+                                    <td><code class="fs-xs">@Model.DatabaseConnection</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Handle tab navigation via URL hash
+    document.addEventListener('DOMContentLoaded', function() {
+        var hash = window.location.hash;
+        if (hash) {
+            var tab = document.querySelector('[href="' + hash + '"]');
+            if (tab) {
+                var bsTab = new bootstrap.Tab(tab);
+                bsTab.show();
+            }
+        }
+    });
+</script>
+}

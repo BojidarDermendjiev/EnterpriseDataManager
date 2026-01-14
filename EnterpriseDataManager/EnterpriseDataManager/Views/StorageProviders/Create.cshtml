@@ -1,0 +1,168 @@
+@model EnterpriseDataManager.Controllers.MVC.StorageProviderFormViewModel
+@{
+    ViewData["Title"] = "Add Storage Provider";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Add Storage Provider</h1>
+        <p class="page-subtitle">Configure a new storage destination for archives</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @Html.ValidationSummary(true)
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Provider Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" asp-for="Name" placeholder="e.g., Primary NAS Storage" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" asp-for="Description" rows="2" placeholder="Optional description"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Storage Type <span class="text-danger">*</span></label>
+                        <select class="form-select" asp-for="Type" id="storageType">
+                            <option value="@EnterpriseDataManager.Core.Enums.StorageType.Local">Local Storage</option>
+                            <option value="@EnterpriseDataManager.Core.Enums.StorageType.S3Compatible">S3 Compatible</option>
+                            <option value="@EnterpriseDataManager.Core.Enums.StorageType.AzureBlob">Azure Blob Storage</option>
+                            <option value="@EnterpriseDataManager.Core.Enums.StorageType.Tape">Tape Storage</option>
+                        </select>
+                    </div>
+
+                    <!-- Local Storage Fields -->
+                    <div id="localFields">
+                        <div class="mb-3">
+                            <label class="form-label">Root Path <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" asp-for="RootPath" placeholder="e.g., C:\Archives or /mnt/archives" />
+                            <small class="text-muted">The base directory path where archives will be stored</small>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Storage Fields -->
+                    <div id="cloudFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">Endpoint <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" asp-for="Endpoint" placeholder="e.g., https://s3.amazonaws.com or https://myaccount.blob.core.windows.net" />
+                            <small class="text-muted">The storage service endpoint URL</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><span id="bucketLabel">Bucket</span> Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" asp-for="BucketOrContainer" placeholder="e.g., my-archive-bucket" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Credentials Reference</label>
+                            <input type="text" class="form-control" asp-for="CredentialsReference" placeholder="e.g., aws-prod-credentials" />
+                            <small class="text-muted">Reference to stored credentials (configured separately)</small>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Quota (GB)</label>
+                                <input type="number" class="form-control" asp-for="QuotaGB" min="1" placeholder="Leave empty for unlimited" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" asp-for="IsEnabled" />
+                            <label class="form-check-label" asp-for="IsEnabled">Enabled</label>
+                        </div>
+                        <small class="text-muted">Disabled providers cannot be used for new archive plans</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" asp-for="IsImmutable" />
+                            <label class="form-check-label" asp-for="IsImmutable">Immutable Storage (WORM)</label>
+                        </div>
+                        <small class="text-muted">Once set, files cannot be modified or deleted until retention expires</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Create Storage Provider</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Storage Types</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Local Storage</strong>
+                    <p class="text-muted fs-sm mb-0">Store archives on local filesystem or network shares. Best for fast access and on-premises deployments.</p>
+                </div>
+                <div class="mb-3">
+                    <strong>S3 Compatible</strong>
+                    <p class="text-muted fs-sm mb-0">AWS S3 or compatible services (MinIO, Wasabi, etc.). Ideal for scalable cloud storage.</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Azure Blob Storage</strong>
+                    <p class="text-muted fs-sm mb-0">Microsoft Azure Blob containers. Great for Azure-centric environments.</p>
+                </div>
+                <div>
+                    <strong>Tape Storage</strong>
+                    <p class="text-muted fs-sm mb-0">LTO tape libraries for long-term, cost-effective archival storage.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const storageTypeSelect = document.getElementById('storageType');
+    const localFields = document.getElementById('localFields');
+    const cloudFields = document.getElementById('cloudFields');
+    const bucketLabel = document.getElementById('bucketLabel');
+
+    function updateFieldsVisibility() {
+        const type = storageTypeSelect.value;
+
+        if (type === '@((int)EnterpriseDataManager.Core.Enums.StorageType.Local)' || type === '@((int)EnterpriseDataManager.Core.Enums.StorageType.Tape)') {
+            localFields.style.display = 'block';
+            cloudFields.style.display = 'none';
+        } else {
+            localFields.style.display = 'none';
+            cloudFields.style.display = 'block';
+
+            if (type === '@((int)EnterpriseDataManager.Core.Enums.StorageType.AzureBlob)') {
+                bucketLabel.textContent = 'Container';
+            } else {
+                bucketLabel.textContent = 'Bucket';
+            }
+        }
+    }
+
+    storageTypeSelect.addEventListener('change', updateFieldsVisibility);
+    updateFieldsVisibility();
+</script>
+}

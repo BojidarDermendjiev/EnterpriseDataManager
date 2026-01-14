@@ -1,0 +1,130 @@
+@model EnterpriseDataManager.Controllers.MVC.CreateArchiveJobViewModel
+@{
+    ViewData["Title"] = "New Archive Job";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Start New Archive Job</h1>
+        <p class="page-subtitle">Create a new archive job from an active archive plan</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @Html.ValidationSummary(true)
+                        </div>
+                    }
+
+                    @if (Model.Plans.Any())
+                    {
+                        <div class="mb-4">
+                            <label class="form-label">Select Archive Plan <span class="text-danger">*</span></label>
+                            <select class="form-select" asp-for="PlanId" asp-items="@(new SelectList(Model.Plans, "Id", "Name"))" required>
+                                <option value="">-- Select a plan --</option>
+                            </select>
+                            <span asp-validation-for="PlanId" class="text-danger"></span>
+                            <small class="text-muted">Only active archive plans are shown</small>
+                        </div>
+
+                        <div id="planDetails" class="mb-4" style="display: none;">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Plan Details</h6>
+                                    <div id="planInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Start Archive Job
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" class="mb-3">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <h5>No Active Archive Plans</h5>
+                            <p class="text-muted">You need to create and activate an archive plan before starting a job.</p>
+                            <a asp-controller="ArchivePlans" asp-action="Create" class="btn btn-primary">Create Archive Plan</a>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">About Archive Jobs</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted fs-sm">
+                    Archive jobs execute archive plans, scanning source paths and copying files to the configured storage provider.
+                </p>
+                <p class="text-muted fs-sm mb-0">
+                    Jobs can be monitored in real-time and will send notifications upon completion or failure if configured.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const planSelect = document.getElementById('PlanId');
+    const planDetails = document.getElementById('planDetails');
+    const planInfo = document.getElementById('planInfo');
+
+    const plans = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Plans.Select(p => new { p.Id, p.Name, SourcePath = p.SourcePath.Path, p.SecurityLevel, StorageProvider = p.StorageProvider?.Name, RetentionPolicy = p.RetentionPolicy?.Name })));
+
+    planSelect.addEventListener('change', function() {
+        const planId = this.value;
+        if (planId) {
+            const plan = plans.find(p => p.id === planId);
+            if (plan) {
+                planInfo.innerHTML = `
+                    <div class="row fs-sm">
+                        <div class="col-6 mb-2"><span class="text-muted">Source:</span></div>
+                        <div class="col-6 mb-2"><strong>${plan.sourcePath || 'N/A'}</strong></div>
+                        <div class="col-6 mb-2"><span class="text-muted">Security:</span></div>
+                        <div class="col-6 mb-2"><strong>${plan.securityLevel}</strong></div>
+                        <div class="col-6 mb-2"><span class="text-muted">Storage:</span></div>
+                        <div class="col-6 mb-2"><strong>${plan.storageProvider || 'Not configured'}</strong></div>
+                        <div class="col-6"><span class="text-muted">Retention:</span></div>
+                        <div class="col-6"><strong>${plan.retentionPolicy || 'Not configured'}</strong></div>
+                    </div>
+                `;
+                planDetails.style.display = 'block';
+            }
+        } else {
+            planDetails.style.display = 'none';
+        }
+    });
+</script>
+}

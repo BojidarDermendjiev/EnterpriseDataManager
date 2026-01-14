@@ -1,4 +1,4 @@
-namespace EnterpriseDataManager.Controllers.Api;
+namespace EnterPriceDataManager.Controllers.MVC;
 
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Application.DTOs;
@@ -6,6 +6,7 @@ using EnterpriseDataManager.Core.Interfaces.Services;
 using EnterpriseDataManager.Core.Interfaces.Repositories;
 using EnterpriseDataManager.Core.Enums;
 using EnterpriseDataManager.Filters;
+using EnterpriseDataManager.Controllers.Api;
 
 /// <summary>
 /// API controller for managing storage providers.

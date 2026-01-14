@@ -1,24 +1,26 @@
 namespace EnterpriseDataManager;
 
+using EnterpriseDataManager.Application;
+using EnterpriseDataManager.Application.Common.Interfaces;
+using EnterpriseDataManager.Data;
+using EnterpriseDataManager.Filters;
+using EnterpriseDataManager.Infrastructure;
+using EnterpriseDataManager.Infrastructure.Time;
+using EnterpriseDataManager.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
 using System.Text.Json.Serialization;
 
-using EnterpriseDataManager.Data;
-using EnterpriseDataManager.Application;
-using EnterpriseDataManager.Infrastructure;
-using EnterpriseDataManager.Middleware;
-using EnterpriseDataManager.Filters;
-
-public class StartUp
+public static class Startup
 {
     public static void Main(string[] args)
     {
-        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
         // Configuration
-        string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         // Database Context
@@ -35,18 +37,33 @@ public class StartUp
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
+            // Sign-in settings
             options.SignIn.RequireConfirmedAccount = false;
-            options.Password.RequireDigit = false;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireLowercase = false;
-            options.Password.RequiredLength = 6;
+
+            // Enterprise-grade password policy
+            options.Password.RequireDigit = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequiredLength = 12;
+            options.Password.RequiredUniqueChars = 4;
+
+            // Lockout settings (protection against brute force)
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+
+            // User settings
+            options.User.RequireUniqueEmail = true;
         });
 
         // Add layers using extension methods
         builder.Services.AddDataLayer(builder.Configuration);
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructure(builder.Configuration);
+
+        // Date/time provider (stateless, safe as singleton)
+        builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         // Memory Cache for various services
         builder.Services.AddMemoryCache();
@@ -110,24 +127,63 @@ public class StartUp
             });
         });
 
-        // CORS
+        // CORS - Secure configuration for all environments
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[] { "https://localhost:5001", "https://localhost:7001" };
+
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
+            options.AddPolicy("Default", policy =>
             {
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
-
-            options.AddPolicy("Production", policy =>
-            {
-                policy.WithOrigins(
-                    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyMethod()
                       .AllowAnyHeader()
-                      .AllowCredentials();
+                      .AllowCredentials()
+                      .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
             });
+        });
+
+        // Rate Limiting - Protection against abuse and brute force attacks
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            // Global rate limit per user/IP
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            {
+                // Use authenticated user name, or IP address, or "anonymous"
+                var partitionKey = context.User?.Identity?.Name
+                    ?? context.Connection.RemoteIpAddress?.ToString()
+                    ?? "anonymous";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: partitionKey,
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 100,
+                        Window = TimeSpan.FromMinutes(1)
+                    });
+            });
+
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+                var retryAfterSeconds = 60;
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
+                    retryAfterSeconds = (int)retryAfter.TotalSeconds;
+                }
+
+                context.HttpContext.Response.Headers.RetryAfter = retryAfterSeconds.ToString();
+
+                await context.HttpContext.Response.WriteAsJsonAsync(new
+                {
+                    error = "Too many requests. Please try again later.",
+                    retryAfter = retryAfterSeconds
+                }, cancellationToken);
+            };
         });
 
         // Health Checks
@@ -145,18 +201,28 @@ public class StartUp
         builder.Logging.AddConsole();
         builder.Logging.AddDebug();
 
-        WebApplication app = builder.Build();
+        var app = builder.Build();
 
         // Configure the HTTP request pipeline
 
         // Exception Handling (should be first)
         app.UseGlobalExceptionHandler();
 
-        // Security Headers
+        // Security Headers - Enterprise-grade configuration
         app.UseSecurityHeaders(options =>
         {
             options.EnableHsts = !app.Environment.IsDevelopment();
-            options.FrameOptionsPolicy = "SAMEORIGIN";
+            options.HstsMaxAge = 31536000; // 1 year
+            options.FrameOptionsPolicy = "DENY";
+            options.EnableNoSniff = true;
+            options.EnableXssProtection = true;
+            options.RemoveServerHeader = true;
+            options.ReferrerPolicy = "strict-origin-when-cross-origin";
+            options.PermissionsPolicy = "geolocation=(), microphone=(), camera=(), usb=()";
+            options.EnableNoCacheForAuthenticated = true;
+            options.ContentSecurityPolicy = app.Environment.IsDevelopment()
+                ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:;"
+                : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; frame-ancestors 'none';";
         });
 
         if (app.Environment.IsDevelopment())
@@ -181,8 +247,11 @@ public class StartUp
 
         app.UseRouting();
 
-        // CORS
-        app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "Production");
+        // CORS - Use secure policy for all environments
+        app.UseCors("Default");
+
+        // Rate Limiting
+        app.UseRateLimiter();
 
         app.UseAuthentication();
         app.UseAuthorization();
