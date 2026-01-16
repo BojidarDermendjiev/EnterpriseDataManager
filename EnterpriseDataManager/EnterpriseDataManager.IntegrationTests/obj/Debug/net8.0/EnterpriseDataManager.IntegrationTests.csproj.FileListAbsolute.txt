@@ -489,12 +489,12 @@ C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.Integration
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\EnterpriseDataManager.Application.dll
 C:\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\EnterpriseDataManager.Application.pdb
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\CoverletSourceRootsMapping_EnterpriseDataManager.IntegrationTests
-C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\testhost.exe
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\testhost.dll
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\testhost.exe
+C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\MvcTestingAppManifest.json
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\xunit.runner.reporters.netcoreapp10.dll
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\xunit.runner.utility.netcoreapp10.dll
-C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\MvcTestingAppManifest.json
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\EnterpriseDataManager.IntegrationTests.deps.json
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\EnterpriseDataManager.IntegrationTests.runtimeconfig.json
 C:\WORK_PLACE\EnterpriseDataManager\EnterpriseDataManager\EnterpriseDataManager.IntegrationTests\bin\Debug\net8.0\EnterpriseDataManager.IntegrationTests.dll

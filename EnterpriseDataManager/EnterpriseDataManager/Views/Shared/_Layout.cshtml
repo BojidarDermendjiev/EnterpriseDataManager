@@ -1,6 +1,12 @@
+@using EnterpriseDataManager.Resources
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture.Culture.Name ?? "en";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +36,7 @@
             <nav class="sidebar-nav">
                 <!-- Main Navigation -->
                 <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
+                    <div class="nav-section-title">@Localizer["Main"]</div>
                     <a asp-controller="Home" asp-action="Index" class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">
                         <span class="nav-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,13 +44,13 @@
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg>
                         </span>
-                        <span class="nav-text">Dashboard</span>
+                        <span class="nav-text">@Localizer["Dashboard"]</span>
                     </a>
                 </div>
 
                 <!-- Archive Management -->
                 <div class="nav-section">
-                    <div class="nav-section-title">Archive Management</div>
+                    <div class="nav-section-title">@Localizer["ArchiveManagement"]</div>
                     <a asp-controller="ArchivePlans" asp-action="Index" class="nav-link @(currentController == "ArchivePlans" ? "active" : "")">
                         <span class="nav-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -55,7 +61,7 @@
                                 <polyline points="10 9 9 9 8 9"></polyline>
                             </svg>
                         </span>
-                        <span class="nav-text">Archive Plans</span>
+                        <span class="nav-text">@Localizer["ArchivePlans"]</span>
                     </a>
                     <a asp-controller="ArchiveJobs" asp-action="Index" class="nav-link @(currentController == "ArchiveJobs" ? "active" : "")">
                         <span class="nav-icon">
@@ -64,7 +70,7 @@
                                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                             </svg>
                         </span>
-                        <span class="nav-text">Archive Jobs</span>
+                        <span class="nav-text">@Localizer["ArchiveJobs"]</span>
                         <span class="badge">3</span>
                     </a>
                     <a asp-controller="RecoveryJobs" asp-action="Index" class="nav-link @(currentController == "RecoveryJobs" ? "active" : "")">
@@ -74,13 +80,13 @@
                                 <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                             </svg>
                         </span>
-                        <span class="nav-text">Recovery Jobs</span>
+                        <span class="nav-text">@Localizer["RecoveryJobs"]</span>
                     </a>
                 </div>
 
                 <!-- Configuration -->
                 <div class="nav-section">
-                    <div class="nav-section-title">Configuration</div>
+                    <div class="nav-section-title">@Localizer["Configuration"]</div>
                     <a asp-controller="StorageProviders" asp-action="Index" class="nav-link @(currentController == "StorageProviders" ? "active" : "")">
                         <span class="nav-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -89,7 +95,7 @@
                                 <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
                             </svg>
                         </span>
-                        <span class="nav-text">Storage Providers</span>
+                        <span class="nav-text">@Localizer["StorageProviders"]</span>
                     </a>
                     <a asp-controller="RetentionPolicies" asp-action="Index" class="nav-link @(currentController == "RetentionPolicies" ? "active" : "")">
                         <span class="nav-icon">
@@ -97,13 +103,13 @@
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </span>
-                        <span class="nav-text">Retention Policies</span>
+                        <span class="nav-text">@Localizer["RetentionPolicies"]</span>
                     </a>
                 </div>
 
                 <!-- Monitoring -->
                 <div class="nav-section">
-                    <div class="nav-section-title">Monitoring</div>
+                    <div class="nav-section-title">@Localizer["Monitoring"]</div>
                     <a asp-controller="AuditLogs" asp-action="Index" class="nav-link @(currentController == "AuditLogs" ? "active" : "")">
                         <span class="nav-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -114,7 +120,7 @@
                                 <line x1="10" y1="9" x2="8" y2="9"></line>
                             </svg>
                         </span>
-                        <span class="nav-text">Audit Logs</span>
+                        <span class="nav-text">@Localizer["AuditLogs"]</span>
                     </a>
                     <a asp-controller="Reports" asp-action="Index" class="nav-link @(currentController == "Reports" ? "active" : "")">
                         <span class="nav-icon">
@@ -124,7 +130,7 @@
                                 <line x1="6" y1="20" x2="6" y2="14"></line>
                             </svg>
                         </span>
-                        <span class="nav-text">Reports</span>
+                        <span class="nav-text">@Localizer["Reports"]</span>
                     </a>
                 </div>
             </nav>
@@ -137,7 +143,7 @@
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </span>
-                    <span class="nav-text">Settings</span>
+                    <span class="nav-text">@Localizer["Settings"]</span>
                 </a>
             </div>
         </aside>
@@ -301,6 +307,49 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="dropdown" id="languageDropdownContainer">
+                        <button class="header-btn" title="@Localizer["Language"]" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-0 shadow" style="width: 200px;">
+                            <li class="p-3 border-bottom">
+                                <h6 class="mb-0">@Localizer["SelectLanguage"]</h6>
+                            </li>
+                            @{
+                                var currentUrl = $"{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
+                                if (string.IsNullOrEmpty(currentUrl)) { currentUrl = "/"; }
+                                var encodedReturnUrl = System.Net.WebUtility.UrlEncode(currentUrl);
+                            }
+                            <li>
+                                <a href="/Language/SetLanguage?culture=en&returnUrl=@encodedReturnUrl" class="dropdown-item d-flex align-items-center gap-2 py-2 @(currentCulture == "en" ? "active" : "")">
+                                    <span style="font-size: 1.2rem;">🇬🇧</span>
+                                    @Localizer["English"]
+                                    @if (currentCulture == "en")
+                                    {
+                                        <svg class="ms-auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    }
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Language/SetLanguage?culture=bg&returnUrl=@encodedReturnUrl" class="dropdown-item d-flex align-items-center gap-2 py-2 @(currentCulture == "bg" ? "active" : "")">
+                                    <span style="font-size: 1.2rem;">🇧🇬</span>
+                                    @Localizer["Bulgarian"]
+                                    @if (currentCulture == "bg")
+                                    {
+                                        <svg class="ms-auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    }
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="user-dropdown">
                         <partial name="_LoginPartial" />
                     </div>
@@ -322,9 +371,50 @@
         </div>
     </div>
 
+    <!-- Cookie Consent Banner -->
+    @if (!Context.Request.Cookies.ContainsKey(".AspNet.Consent"))
+    {
+        <div class="cookie-consent-banner" id="cookieConsentBanner">
+            <div class="cookie-consent-content">
+                <div class="cookie-consent-text">
+                    <h6>@Localizer["CookieConsentTitle"]</h6>
+                    <p>@Localizer["CookieConsentMessage"]</p>
+                </div>
+                <div class="cookie-consent-actions">
+                    <a href="/Privacy" class="btn btn-link btn-sm">@Localizer["LearnMore"]</a>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="declineCookies">@Localizer["DeclineCookies"]</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="acceptCookies">@Localizer["AcceptCookies"]</button>
+                </div>
+            </div>
+        </div>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Cookie Consent Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            var acceptBtn = document.getElementById('acceptCookies');
+            var declineBtn = document.getElementById('declineCookies');
+            var banner = document.getElementById('cookieConsentBanner');
+
+            if (acceptBtn) {
+                acceptBtn.addEventListener('click', function() {
+                    var date = new Date();
+                    date.setFullYear(date.getFullYear() + 1);
+                    document.cookie = '.AspNet.Consent=true; expires=' + date.toUTCString() + '; path=/; SameSite=Lax; Secure';
+                    if (banner) banner.style.display = 'none';
+                });
+            }
+
+            if (declineBtn) {
+                declineBtn.addEventListener('click', function() {
+                    if (banner) banner.style.display = 'none';
+                });
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

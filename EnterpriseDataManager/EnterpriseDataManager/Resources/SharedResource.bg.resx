@@ -1,0 +1,356 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!-- 
+		Microsoft ResX Schema
+
+		Version 1.3
+
+		The primary goals of this format is to allow a simple XML format 
+		that is mostly human readable. The generation and parsing of the 
+		various data types are done through the TypeConverter classes 
+		associated with the data types.
+
+		Example:
+
+		... ado.net/XML headers & schema ...
+		<resheader name="resmimetype">text/microsoft-resx</resheader>
+		<resheader name="version">1.3</resheader>
+		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+		<data name="Name1">this is my long string</data>
+		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+			[base64 mime encoded serialized .NET Framework object]
+		</data>
+		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+			[base64 mime encoded string representing a byte array form of the .NET Framework object]
+		</data>
+
+		There are any number of "resheader" rows that contain simple 
+		name/value pairs.
+
+		Each data row contains a name, and value. The row also contains a 
+		type or mimetype. Type corresponds to a .NET class that support 
+		text/value conversion through the TypeConverter architecture. 
+		Classes that don't support this are serialized and stored with the 
+		mimetype set.
+
+		The mimetype is used for serialized objects, and tells the 
+		ResXResourceReader how to depersist the object. This is currently not 
+		extensible. For a given mimetype the value must be set accordingly:
+
+		Note - application/x-microsoft.net.object.binary.base64 is the format 
+		that the ResXResourceWriter will generate, however the reader can 
+		read any of the formats listed below.
+
+		mimetype: application/x-microsoft.net.object.binary.base64
+		value   : The object must be serialized with 
+			: System.Serialization.Formatters.Binary.BinaryFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.soap.base64
+		value   : The object must be serialized with 
+			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.bytearray.base64
+		value   : The object must be serialized into a byte array 
+			: using a System.ComponentModel.TypeConverter
+			: and then encoded with base64 encoding.
+	-->
+	
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="Main" xml:space="preserve">
+		<value>Основно</value>
+	</data>
+	<data name="ArchiveManagement" xml:space="preserve">
+		<value>Управление на архиви</value>
+	</data>
+	<data name="Configuration" xml:space="preserve">
+		<value>Конфигурация</value>
+	</data>
+	<data name="Monitoring" xml:space="preserve">
+		<value>Мониторинг</value>
+	</data>
+	<data name="Dashboard" xml:space="preserve">
+		<value>Табло</value>
+	</data>
+	<data name="ArchivePlans" xml:space="preserve">
+		<value>Архивни планове</value>
+	</data>
+	<data name="ArchiveJobs" xml:space="preserve">
+		<value>Архивни задачи</value>
+	</data>
+	<data name="RecoveryJobs" xml:space="preserve">
+		<value>Задачи за възстановяване</value>
+	</data>
+	<data name="StorageProviders" xml:space="preserve">
+		<value>Доставчици на хранилище</value>
+	</data>
+	<data name="RetentionPolicies" xml:space="preserve">
+		<value>Политики за запазване</value>
+	</data>
+	<data name="AuditLogs" xml:space="preserve">
+		<value>Одитни журнали</value>
+	</data>
+	<data name="Reports" xml:space="preserve">
+		<value>Справки</value>
+	</data>
+	<data name="Settings" xml:space="preserve">
+		<value>Настройки</value>
+	</data>
+	<data name="Language" xml:space="preserve">
+		<value>Език</value>
+	</data>
+	<data name="SelectLanguage" xml:space="preserve">
+		<value>Избор на език</value>
+	</data>
+	<data name="English" xml:space="preserve">
+		<value>Английски</value>
+	</data>
+	<data name="Bulgarian" xml:space="preserve">
+		<value>Български</value>
+	</data>
+	<data name="CookieConsentTitle" xml:space="preserve">
+		<value>Съгласие за бисквитки</value>
+	</data>
+	<data name="CookieConsentMessage" xml:space="preserve">
+		<value>Използваме бисквитки, за да подобрим вашето изживяване. Продължавайки да използвате този сайт, вие се съгласявате с използването на бисквитки.</value>
+	</data>
+	<data name="LearnMore" xml:space="preserve">
+		<value>Научете повече</value>
+	</data>
+	<data name="DeclineCookies" xml:space="preserve">
+		<value>Откажи</value>
+	</data>
+	<data name="AcceptCookies" xml:space="preserve">
+		<value>Приеми</value>
+	</data>
+	<data name="Save" xml:space="preserve">
+		<value>Запази</value>
+	</data>
+	<data name="Cancel" xml:space="preserve">
+		<value>Отказ</value>
+	</data>
+	<data name="Delete" xml:space="preserve">
+		<value>Изтрий</value>
+	</data>
+	<data name="Edit" xml:space="preserve">
+		<value>Редактирай</value>
+	</data>
+	<data name="Create" xml:space="preserve">
+		<value>Създай</value>
+	</data>
+	<data name="Search" xml:space="preserve">
+		<value>Търсене</value>
+	</data>
+	<data name="Back" xml:space="preserve">
+		<value>Назад</value>
+	</data>
+	<data name="Close" xml:space="preserve">
+		<value>Затвори</value>
+	</data>
+	<data name="Name" xml:space="preserve">
+		<value>Име</value>
+	</data>
+	<data name="Description" xml:space="preserve">
+		<value>Описание</value>
+	</data>
+	<data name="Status" xml:space="preserve">
+		<value>Статус</value>
+	</data>
+	<data name="Type" xml:space="preserve">
+		<value>Тип</value>
+	</data>
+	<data name="CreatedAt" xml:space="preserve">
+		<value>Създадено на</value>
+	</data>
+	<data name="UpdatedAt" xml:space="preserve">
+		<value>Обновено на</value>
+	</data>
+	<data name="Actions" xml:space="preserve">
+		<value>Действия</value>
+	</data>
+	<data name="Active" xml:space="preserve">
+		<value>Активен</value>
+	</data>
+	<data name="Inactive" xml:space="preserve">
+		<value>Неактивен</value>
+	</data>
+	<data name="Pending" xml:space="preserve">
+		<value>Изчакващ</value>
+	</data>
+	<data name="Completed" xml:space="preserve">
+		<value>Завършен</value>
+	</data>
+	<data name="Failed" xml:space="preserve">
+		<value>Неуспешен</value>
+	</data>
+	<data name="Running" xml:space="preserve">
+		<value>Изпълнява се</value>
+	</data>
+	<data name="SettingsTitle" xml:space="preserve">
+		<value>Настройки</value>
+	</data>
+	<data name="SettingsSubtitle" xml:space="preserve">
+		<value>Конфигурирайте системните предпочитания и настройки на приложението</value>
+	</data>
+	<data name="GeneralSettings" xml:space="preserve">
+		<value>Общи настройки</value>
+	</data>
+	<data name="ArchiveSettings" xml:space="preserve">
+		<value>Настройки на архива</value>
+	</data>
+	<data name="NotificationSettings" xml:space="preserve">
+		<value>Настройки за известия</value>
+	</data>
+	<data name="SecuritySettings" xml:space="preserve">
+		<value>Настройки за сигурност</value>
+	</data>
+	<data name="LanguageSettings" xml:space="preserve">
+		<value>Езикови настройки</value>
+	</data>
+	<data name="LanguageSettingsDescription" xml:space="preserve">
+		<value>Изберете предпочитания език за интерфейса на приложението.</value>
+	</data>
+	<data name="About" xml:space="preserve">
+		<value>За приложението</value>
+	</data>
+	<data name="AboutTitle" xml:space="preserve">
+		<value>За Enterprise Data Manager</value>
+	</data>
+	<data name="SessionTimeout" xml:space="preserve">
+		<value>Времетраене на сесията (минути)</value>
+	</data>
+	<data name="SessionTimeoutHint" xml:space="preserve">
+		<value>Време преди неактивните потребители да бъдат изведени</value>
+	</data>
+	<data name="MaxUploadSize" xml:space="preserve">
+		<value>Максимален размер за качване (MB)</value>
+	</data>
+	<data name="EnableAuditLogging" xml:space="preserve">
+		<value>Активирай одитно логване</value>
+	</data>
+	<data name="EnableAuditLoggingHint" xml:space="preserve">
+		<value>Записвай всички потребителски действия за съответствие</value>
+	</data>
+	<data name="EnableRateLimiting" xml:space="preserve">
+		<value>Активирай ограничаване на заявките</value>
+	</data>
+	<data name="EnableRateLimitingHint" xml:space="preserve">
+		<value>Защити API от злоупотреба</value>
+	</data>
+	<data name="DefaultRetentionPeriod" xml:space="preserve">
+		<value>Период на съхранение по подразбиране (дни)</value>
+	</data>
+	<data name="MaxConcurrentJobs" xml:space="preserve">
+		<value>Максимален брой едновременни задачи</value>
+	</data>
+	<data name="MaxConcurrentJobsHint" xml:space="preserve">
+		<value>Максимален брой архивни задачи, изпълняващи се едновременно</value>
+	</data>
+	<data name="EnableCompression" xml:space="preserve">
+		<value>Активирай компресия</value>
+	</data>
+	<data name="EnableCompressionHint" xml:space="preserve">
+		<value>Компресирай архивираните файлове за спестяване на място</value>
+	</data>
+	<data name="EnableEncryption" xml:space="preserve">
+		<value>Активирай криптиране</value>
+	</data>
+	<data name="EnableEncryptionHint" xml:space="preserve">
+		<value>Криптирай архивираните файлове в покой</value>
+	</data>
+	<data name="EmailNotifications" xml:space="preserve">
+		<value>Известия по имейл</value>
+	</data>
+	<data name="EmailNotificationsHint" xml:space="preserve">
+		<value>Получавай имейл известия за завършени и неуспешни задачи</value>
+	</data>
+	<data name="SlackNotifications" xml:space="preserve">
+		<value>Slack известия</value>
+	</data>
+	<data name="WebhookUrl" xml:space="preserve">
+		<value>Webhook URL</value>
+	</data>
+	<data name="WebhookUrlHint" xml:space="preserve">
+		<value>Изпращай известия до персонализирана webhook крайна точка</value>
+	</data>
+	<data name="ChangePassword" xml:space="preserve">
+		<value>Смяна на парола</value>
+	</data>
+	<data name="CurrentPassword" xml:space="preserve">
+		<value>Текуща парола</value>
+	</data>
+	<data name="NewPassword" xml:space="preserve">
+		<value>Нова парола</value>
+	</data>
+	<data name="ConfirmPassword" xml:space="preserve">
+		<value>Потвърди новата парола</value>
+	</data>
+	<data name="PasswordRequirements" xml:space="preserve">
+		<value>Минимум 12 символа с главни букви, малки букви, цифра и специален символ</value>
+	</data>
+	<data name="TwoFactorAuth" xml:space="preserve">
+		<value>Двуфакторна автентикация</value>
+	</data>
+	<data name="TwoFactorAuthHint" xml:space="preserve">
+		<value>Добави допълнителен слой сигурност към акаунта си</value>
+	</data>
+	<data name="Enable2FA" xml:space="preserve">
+		<value>Активирай 2FA</value>
+	</data>
+	<data name="ApplicationName" xml:space="preserve">
+		<value>Име на приложението</value>
+	</data>
+	<data name="Version" xml:space="preserve">
+		<value>Версия</value>
+	</data>
+	<data name="Environment" xml:space="preserve">
+		<value>Среда</value>
+	</data>
+	<data name="CurrentUser" xml:space="preserve">
+		<value>Текущ потребител</value>
+	</data>
+	<data name="Database" xml:space="preserve">
+		<value>База данни</value>
+	</data>
+</root>

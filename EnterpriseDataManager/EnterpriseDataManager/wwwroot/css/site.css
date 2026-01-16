@@ -1222,3 +1222,127 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================
+   Cookie Consent Banner
+   ============================================ */
+.cookie-consent-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-sidebar);
+    color: var(--text-light);
+    padding: 1rem 1.5rem;
+    z-index: 9999;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cookie-consent-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.cookie-consent-text h6 {
+    color: var(--text-light);
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.cookie-consent-text p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.cookie-consent-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.cookie-consent-actions .btn-link {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.cookie-consent-actions .btn-link:hover {
+    color: var(--text-light);
+}
+
+.cookie-consent-actions .btn-outline-secondary {
+    border-color: var(--text-muted);
+    color: var(--text-light);
+}
+
+.cookie-consent-actions .btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+    .cookie-consent-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cookie-consent-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   Language Switcher Dropdown
+   ============================================ */
+#languageDropdownContainer .dropdown-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#languageDropdownContainer .dropdown-item:hover:not(.active) {
+    background-color: var(--bg-primary);
+}
+
+/* ============================================
+   Language Settings Page
+   ============================================ */
+.language-option label {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.language-option label:hover {
+    border-color: var(--primary-color) !important;
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+.language-option.selected label,
+.language-option input:checked + label {
+    border-color: var(--primary-color) !important;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

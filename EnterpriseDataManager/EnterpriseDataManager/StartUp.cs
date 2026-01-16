@@ -8,8 +8,11 @@ using EnterpriseDataManager.Infrastructure;
 using EnterpriseDataManager.Infrastructure.Time;
 using EnterpriseDataManager.Middleware;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 using System.Threading.RateLimiting;
 using System.Text.Json.Serialization;
 
@@ -68,6 +71,36 @@ public static class Startup
         // Memory Cache for various services
         builder.Services.AddMemoryCache();
 
+        // Localization (i18n) - English and Bulgarian
+        builder.Services.AddLocalization();
+
+        var supportedCultures = new[]
+        {
+            new CultureInfo("en"),
+            new CultureInfo("bg")
+        };
+
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            options.DefaultRequestCulture = new RequestCulture("en");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+            options.RequestCultureProviders = new List<IRequestCultureProvider>
+            {
+                new CookieRequestCultureProvider { CookieName = ".AspNetCore.Culture" },
+                new QueryStringRequestCultureProvider(),
+                new AcceptLanguageHeaderRequestCultureProvider()
+            };
+        });
+
+        // Cookie Policy - GDPR compliant
+        builder.Services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.CheckConsentNeeded = context => true;
+            options.MinimumSameSitePolicy = SameSiteMode.Lax;
+            options.ConsentCookieValue = "true";
+        });
+
         // Register Filters
         builder.Services.AddScoped<AuditActionFilter>();
 
@@ -77,6 +110,8 @@ public static class Startup
             // Add global filters
             options.Filters.Add<ValidateModelAttribute>();
         })
+        .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
+        .AddDataAnnotationsLocalization()
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -244,6 +279,13 @@ public static class Startup
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseResponseCompression();
+
+        // Localization - must be before cookie policy so culture cookie can be read
+        var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+        app.UseRequestLocalization(localizationOptions);
+
+        // Cookie Policy (for GDPR consent) - after localization
+        app.UseCookiePolicy();
 
         app.UseRouting();
 

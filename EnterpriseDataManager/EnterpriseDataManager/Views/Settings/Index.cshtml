@@ -1,13 +1,20 @@
 @model EnterpriseDataManager.Controllers.MVC.SettingsViewModel
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 @{
-    ViewData["Title"] = "Settings";
+    ViewData["Title"] = Localizer["SettingsTitle"];
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var settingsCulture = requestCultureFeature?.RequestCulture.Culture.Name ?? "en";
+    var isEnglish = settingsCulture.StartsWith("en");
+    var isBulgarian = settingsCulture.StartsWith("bg");
 }
 
 <!-- Page Header -->
 <div class="page-header">
     <div>
-        <h1 class="page-title">Settings</h1>
-        <p class="page-subtitle">Configure system preferences and application settings</p>
+        <h1 class="page-title">@Localizer["Settings"]</h1>
+        <p class="page-subtitle">@Localizer["SettingsSubtitle"]</p>
     </div>
 </div>
 
@@ -38,27 +45,35 @@
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
-                        General
+                        @Localizer["GeneralSettings"]
                     </a>
                     <a class="nav-link" href="#archive" data-bs-toggle="tab">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                         </svg>
-                        Archive
+                        @Localizer["ArchiveSettings"]
                     </a>
                     <a class="nav-link" href="#notifications" data-bs-toggle="tab">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
-                        Notifications
+                        @Localizer["NotificationSettings"]
                     </a>
                     <a class="nav-link" href="#security" data-bs-toggle="tab">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
-                        Security
+                        @Localizer["SecuritySettings"]
+                    </a>
+                    <a class="nav-link" href="#language" data-bs-toggle="tab">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        @Localizer["Language"]
                     </a>
                     <a class="nav-link" href="#about" data-bs-toggle="tab">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
@@ -66,7 +81,7 @@
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        About
+                        @Localizer["About"]
                     </a>
                 </nav>
             </div>
@@ -80,18 +95,18 @@
             <div class="tab-pane fade show active" id="general">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">General Settings</h3>
+                        <h3 class="card-title">@Localizer["GeneralSettings"]</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="SaveGeneral" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
-                                <label class="form-label">Session Timeout (minutes)</label>
+                                <label class="form-label">@Localizer["SessionTimeout"]</label>
                                 <input type="number" class="form-control" name="SessionTimeout" value="@Model.SessionTimeout" min="5" max="120" />
-                                <small class="text-muted">Time before inactive users are logged out</small>
+                                <small class="text-muted">@Localizer["SessionTimeoutHint"]</small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Max Upload Size (MB)</label>
+                                <label class="form-label">@Localizer["MaxUploadSize"]</label>
                                 <input type="number" class="form-control" name="MaxUploadSize" value="@Model.MaxUploadSize" min="1" max="1000" />
                             </div>
                             <div class="mb-3">
@@ -104,9 +119,9 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="enableAuditLogging" name="EnableAuditLogging" value="true" />
                                     }
-                                    <label class="form-check-label" for="enableAuditLogging">Enable Audit Logging</label>
+                                    <label class="form-check-label" for="enableAuditLogging">@Localizer["EnableAuditLogging"]</label>
                                 </div>
-                                <small class="text-muted">Log all user actions for compliance</small>
+                                <small class="text-muted">@Localizer["EnableAuditLoggingHint"]</small>
                             </div>
                             <div class="mb-3">
                                 <div class="form-check form-switch">
@@ -118,11 +133,11 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="enableRateLimiting" name="EnableRateLimiting" value="true" />
                                     }
-                                    <label class="form-check-label" for="enableRateLimiting">Enable Rate Limiting</label>
+                                    <label class="form-check-label" for="enableRateLimiting">@Localizer["EnableRateLimiting"]</label>
                                 </div>
-                                <small class="text-muted">Protect API from abuse</small>
+                                <small class="text-muted">@Localizer["EnableRateLimitingHint"]</small>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
                         </form>
                     </div>
                 </div>
@@ -132,19 +147,19 @@
             <div class="tab-pane fade" id="archive">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Archive Settings</h3>
+                        <h3 class="card-title">@Localizer["ArchiveSettings"]</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="SaveArchive" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
-                                <label class="form-label">Default Retention Period (days)</label>
+                                <label class="form-label">@Localizer["DefaultRetentionPeriod"]</label>
                                 <input type="number" class="form-control" name="DefaultRetentionDays" value="@Model.DefaultRetentionDays" min="1" max="3650" />
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Max Concurrent Jobs</label>
+                                <label class="form-label">@Localizer["MaxConcurrentJobs"]</label>
                                 <input type="number" class="form-control" name="MaxConcurrentJobs" value="@Model.MaxConcurrentJobs" min="1" max="20" />
-                                <small class="text-muted">Maximum number of archive jobs running simultaneously</small>
+                                <small class="text-muted">@Localizer["MaxConcurrentJobsHint"]</small>
                             </div>
                             <div class="mb-3">
                                 <div class="form-check form-switch">
@@ -156,9 +171,9 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="compressionEnabled" name="CompressionEnabled" value="true" />
                                     }
-                                    <label class="form-check-label" for="compressionEnabled">Enable Compression</label>
+                                    <label class="form-check-label" for="compressionEnabled">@Localizer["EnableCompression"]</label>
                                 </div>
-                                <small class="text-muted">Compress archived files to save storage space</small>
+                                <small class="text-muted">@Localizer["EnableCompressionHint"]</small>
                             </div>
                             <div class="mb-3">
                                 <div class="form-check form-switch">
@@ -170,11 +185,11 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="encryptionEnabled" name="EncryptionEnabled" value="true" />
                                     }
-                                    <label class="form-check-label" for="encryptionEnabled">Enable Encryption</label>
+                                    <label class="form-check-label" for="encryptionEnabled">@Localizer["EnableEncryption"]</label>
                                 </div>
-                                <small class="text-muted">Encrypt archived files at rest</small>
+                                <small class="text-muted">@Localizer["EnableEncryptionHint"]</small>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
                         </form>
                     </div>
                 </div>
@@ -184,7 +199,7 @@
             <div class="tab-pane fade" id="notifications">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Notification Settings</h3>
+                        <h3 class="card-title">@Localizer["NotificationSettings"]</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="SaveNotifications" method="post">
@@ -199,9 +214,9 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="emailNotifications" name="EmailNotificationsEnabled" value="true" />
                                     }
-                                    <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                    <label class="form-check-label" for="emailNotifications">@Localizer["EmailNotifications"]</label>
                                 </div>
-                                <small class="text-muted">Receive email alerts for job completions and failures</small>
+                                <small class="text-muted">@Localizer["EmailNotificationsHint"]</small>
                             </div>
                             <div class="mb-3">
                                 <div class="form-check form-switch">
@@ -213,15 +228,15 @@
                                     {
                                         <input class="form-check-input" type="checkbox" id="slackNotifications" name="SlackNotificationsEnabled" value="true" />
                                     }
-                                    <label class="form-check-label" for="slackNotifications">Slack Notifications</label>
+                                    <label class="form-check-label" for="slackNotifications">@Localizer["SlackNotifications"]</label>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Webhook URL</label>
+                                <label class="form-label">@Localizer["WebhookUrl"]</label>
                                 <input type="url" class="form-control" name="WebhookUrl" value="@Model.WebhookUrl" placeholder="https://your-webhook-url.com" />
-                                <small class="text-muted">Send notifications to a custom webhook endpoint</small>
+                                <small class="text-muted">@Localizer["WebhookUrlHint"]</small>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
                         </form>
                     </div>
                 </div>
@@ -231,41 +246,93 @@
             <div class="tab-pane fade" id="security">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h3 class="card-title">Change Password</h3>
+                        <h3 class="card-title">@Localizer["ChangePassword"]</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="ChangePassword" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
-                                <label class="form-label">Current Password</label>
+                                <label class="form-label">@Localizer["CurrentPassword"]</label>
                                 <input type="password" class="form-control" name="currentPassword" required />
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">New Password</label>
+                                <label class="form-label">@Localizer["NewPassword"]</label>
                                 <input type="password" class="form-control" name="newPassword" required minlength="12" />
-                                <small class="text-muted">Minimum 12 characters with uppercase, lowercase, number, and special character</small>
+                                <small class="text-muted">@Localizer["PasswordRequirements"]</small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Confirm New Password</label>
+                                <label class="form-label">@Localizer["ConfirmPassword"]</label>
                                 <input type="password" class="form-control" name="confirmPassword" required />
                             </div>
-                            <button type="submit" class="btn btn-primary">Change Password</button>
+                            <button type="submit" class="btn btn-primary">@Localizer["ChangePassword"]</button>
                         </form>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Two-Factor Authentication</h3>
+                        <h3 class="card-title">@Localizer["TwoFactorAuth"]</h3>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted mb-3">Add an extra layer of security to your account</p>
+                        <p class="text-muted mb-3">@Localizer["TwoFactorAuthHint"]</p>
                         <button type="button" class="btn btn-outline-primary" onclick="alert('2FA setup will be implemented')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
-                            Enable 2FA
+                            @Localizer["Enable2FA"]
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language Settings -->
+            <div class="tab-pane fade" id="language">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">@Localizer["LanguageSettings"]</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">@Localizer["LanguageSettingsDescription"]</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/Language/SetLanguage?culture=en&returnUrl=%2FSettings%23language" class="text-decoration-none">
+                                    <div class="language-option @(isEnglish ? "selected" : "")">
+                                        <div class="d-flex align-items-center p-3 border rounded cursor-pointer">
+                                            <span style="font-size: 2rem; margin-right: 1rem;">🇬🇧</span>
+                                            <div>
+                                                <div class="fw-bold text-dark">English</div>
+                                                <div class="text-muted small">English (United States)</div>
+                                            </div>
+                                            @if (isEnglish)
+                                            {
+                                                <svg class="ms-auto text-success" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/Language/SetLanguage?culture=bg&returnUrl=%2FSettings%23language" class="text-decoration-none">
+                                    <div class="language-option @(isBulgarian ? "selected" : "")">
+                                        <div class="d-flex align-items-center p-3 border rounded cursor-pointer">
+                                            <span style="font-size: 2rem; margin-right: 1rem;">🇧🇬</span>
+                                            <div>
+                                                <div class="fw-bold text-dark">Български</div>
+                                                <div class="text-muted small">Bulgarian</div>
+                                            </div>
+                                            @if (isBulgarian)
+                                            {
+                                                <svg class="ms-auto text-success" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -274,29 +341,29 @@
             <div class="tab-pane fade" id="about">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">About Enterprise Data Manager</h3>
+                        <h3 class="card-title">@Localizer["AboutTitle"]</h3>
                     </div>
                     <div class="card-body">
                         <table class="table table-borderless">
                             <tbody>
                                 <tr>
-                                    <th style="width: 200px;">Application Name</th>
+                                    <th style="width: 200px;">@Localizer["ApplicationName"]</th>
                                     <td>@Model.ApplicationName</td>
                                 </tr>
                                 <tr>
-                                    <th>Version</th>
+                                    <th>@Localizer["Version"]</th>
                                     <td>@Model.Version</td>
                                 </tr>
                                 <tr>
-                                    <th>Environment</th>
+                                    <th>@Localizer["Environment"]</th>
                                     <td><span class="badge bg-primary">@Model.Environment</span></td>
                                 </tr>
                                 <tr>
-                                    <th>Current User</th>
+                                    <th>@Localizer["CurrentUser"]</th>
                                     <td>@Model.CurrentUserEmail</td>
                                 </tr>
                                 <tr>
-                                    <th>Database</th>
+                                    <th>@Localizer["Database"]</th>
                                     <td><code class="fs-xs">@Model.DatabaseConnection</code></td>
                                 </tr>
                             </tbody>

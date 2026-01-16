@@ -1,3 +1,4 @@
+
 namespace EnterpriseDataManager.Data.Repositories;
 
 using EnterpriseDataManager.Core.Entities;
