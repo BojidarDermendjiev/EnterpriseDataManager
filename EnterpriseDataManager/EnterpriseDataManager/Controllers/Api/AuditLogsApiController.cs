@@ -1,5 +1,6 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Application.DTOs;
 using EnterpriseDataManager.Core.Interfaces.Services;
@@ -8,7 +9,8 @@ using EnterpriseDataManager.Filters;
 /// <summary>
 /// API controller for managing audit logs.
 /// </summary>
-[Route("api/audit-logs")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/audit-logs")]
 public class AuditLogsApiController : ApiBaseController
 {
     private readonly IAuditService _auditService;

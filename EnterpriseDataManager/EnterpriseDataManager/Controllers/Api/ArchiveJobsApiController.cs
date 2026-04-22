@@ -1,5 +1,6 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Application.DTOs;
 using EnterpriseDataManager.Core.Interfaces.Services;
@@ -10,7 +11,8 @@ using EnterpriseDataManager.Filters;
 /// <summary>
 /// API controller for managing archive jobs.
 /// </summary>
-[Route("api/archive-jobs")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/archive-jobs")]
 public class ArchiveJobsApiController : ApiBaseController
 {
     private readonly IArchivalService _archivalService;

@@ -18,6 +18,7 @@ public class RecoveryJob : BaseEntity
     public int RecoveredItems { get; private set; }
     public long TotalBytes { get; private set; }
     public long RecoveredBytes { get; private set; }
+    public bool IsSimulation { get; set; }
 
     protected RecoveryJob() { }
 

@@ -1,17 +1,24 @@
 namespace EnterpriseDataManager;
 
+using System.Text;
+using Asp.Versioning;
 using EnterpriseDataManager.Application;
 using EnterpriseDataManager.Application.Common.Interfaces;
 using EnterpriseDataManager.Data;
 using EnterpriseDataManager.Filters;
 using EnterpriseDataManager.Infrastructure;
+using EnterpriseDataManager.Infrastructure.Identity;
 using EnterpriseDataManager.Infrastructure.Time;
 using EnterpriseDataManager.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Globalization;
 using System.Threading.RateLimiting;
 using System.Text.Json.Serialization;
@@ -22,42 +29,63 @@ public static class Startup
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Configuration
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-        // Database Context
+        // Database Context — provider selectable via config for multi-environment support
+        var provider = builder.Configuration.GetValue<string>("Database:Provider") ?? "SqlServer";
         builder.Services.AddDbContext<EnterpriseDataManagerDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        {
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            _ = provider switch
+            {
+                "PostgreSQL" => options.UseNpgsql(connectionString, b => b.MigrationsAssembly("EnterpriseDataManager.Data")),
+                "Sqlite" => options.UseSqlite(connectionString, b => b.MigrationsAssembly("EnterpriseDataManager.Data")),
+                _ => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("EnterpriseDataManager.Data"))
+            };
+        });
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        // Identity
+        // ASP.NET Core Identity — cookie auth for MVC pages
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<EnterpriseDataManagerDbContext>()
             .AddDefaultTokenProviders();
 
-        builder.Services.Configure<IdentityOptions>(options =>
+        builder.Services.Configure<Microsoft.AspNetCore.Identity.IdentityOptions>(options =>
         {
-            // Sign-in settings
             options.SignIn.RequireConfirmedAccount = false;
-
-            // Enterprise-grade password policy
             options.Password.RequireDigit = true;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
             options.Password.RequiredLength = 12;
             options.Password.RequiredUniqueChars = 4;
-
-            // Lockout settings (protection against brute force)
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
-
-            // User settings
             options.User.RequireUniqueEmail = true;
+        });
+
+        // JWT Bearer — additional scheme for API endpoints; cookie auth for MVC remains the default
+        var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = "Identity.Application";
+            options.DefaultChallengeScheme = "Identity.Application";
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidateAudience = true,
+                ValidAudience = jwtOptions.Audience,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+            };
         });
 
         // Add layers using extension methods
@@ -65,21 +93,16 @@ public static class Startup
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructure(builder.Configuration);
 
-        // Date/time provider (stateless, safe as singleton)
         builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
-
-        // Memory Cache for various services
         builder.Services.AddMemoryCache();
 
-        // Localization (i18n) - English and Bulgarian
+        // Localization
         builder.Services.AddLocalization();
-
         var supportedCultures = new[]
         {
             new CultureInfo("en"),
             new CultureInfo("bg")
         };
-
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
             options.DefaultRequestCulture = new RequestCulture("en");
@@ -93,7 +116,7 @@ public static class Startup
             };
         });
 
-        // Cookie Policy - GDPR compliant
+        // Cookie Policy
         builder.Services.Configure<CookiePolicyOptions>(options =>
         {
             options.CheckConsentNeeded = context => true;
@@ -101,13 +124,11 @@ public static class Startup
             options.ConsentCookieValue = "true";
         });
 
-        // Register Filters
         builder.Services.AddScoped<AuditActionFilter>();
 
         // MVC Controllers and Views
         builder.Services.AddControllersWithViews(options =>
         {
-            // Add global filters
             options.Filters.Add<ValidateModelAttribute>();
         })
         .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
@@ -118,8 +139,22 @@ public static class Startup
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
 
-        // API Controllers
         builder.Services.AddEndpointsApiExplorer();
+
+        // API Versioning
+        builder.Services.AddApiVersioning(options =>
+        {
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+            options.ApiVersionReader = ApiVersionReader.Combine(
+                new UrlSegmentApiVersionReader(),
+                new HeaderApiVersionReader("X-Api-Version"));
+        }).AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
 
         // Swagger/OpenAPI
         builder.Services.AddSwaggerGen(options =>
@@ -136,14 +171,13 @@ public static class Startup
                 }
             });
 
-            // Add JWT authentication to Swagger
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
                 Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -162,10 +196,9 @@ public static class Startup
             });
         });
 
-        // CORS - Secure configuration for all environments
+        // CORS
         var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
             ?? new[] { "https://localhost:5001", "https://localhost:7001" };
-
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("Default", policy =>
@@ -178,15 +211,21 @@ public static class Startup
             });
         });
 
-        // Rate Limiting - Protection against abuse and brute force attacks
+        // Rate Limiting
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            // Global rate limit per user/IP
+            options.AddFixedWindowLimiter("api", limiterOptions =>
+            {
+                limiterOptions.PermitLimit = 100;
+                limiterOptions.Window = TimeSpan.FromMinutes(1);
+                limiterOptions.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+                limiterOptions.QueueLimit = 10;
+            });
+
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
             {
-                // Use authenticated user name, or IP address, or "anonymous"
                 var partitionKey = context.User?.Identity?.Name
                     ?? context.Connection.RemoteIpAddress?.ToString()
                     ?? "anonymous";
@@ -232,22 +271,24 @@ public static class Startup
         });
 
         // Logging
-        builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
+        builder.Host.UseSerilog((ctx, lc) => lc
+            .ReadFrom.Configuration(ctx.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(
+                path: "logs/edm-.log",
+                rollingInterval: Serilog.RollingInterval.Day,
+                retainedFileCountLimit: 30,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"));
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline
-
-        // Exception Handling (should be first)
         app.UseGlobalExceptionHandler();
 
-        // Security Headers - Enterprise-grade configuration
         app.UseSecurityHeaders(options =>
         {
             options.EnableHsts = !app.Environment.IsDevelopment();
-            options.HstsMaxAge = 31536000; // 1 year
+            options.HstsMaxAge = 31536000;
             options.FrameOptionsPolicy = "DENY";
             options.EnableNoSniff = true;
             options.EnableXssProtection = true;
@@ -280,25 +321,16 @@ public static class Startup
         app.UseStaticFiles();
         app.UseResponseCompression();
 
-        // Localization - must be before cookie policy so culture cookie can be read
         var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
         app.UseRequestLocalization(localizationOptions);
 
-        // Cookie Policy (for GDPR consent) - after localization
         app.UseCookiePolicy();
-
         app.UseRouting();
-
-        // CORS - Use secure policy for all environments
         app.UseCors("Default");
-
-        // Rate Limiting
         app.UseRateLimiter();
-
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Audit Logging (after authentication so we have user context)
         app.UseAuditLogging(options =>
         {
             options.EnableDatabaseLogging = true;
@@ -318,11 +350,9 @@ public static class Startup
             };
         });
 
-        // Health Check Endpoints
         app.MapHealthChecks("/health");
         app.MapHealthChecks("/healthz");
 
-        // MVC Routes
         app.MapControllerRoute(
             name: "areas",
             pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -331,10 +361,7 @@ public static class Startup
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
-        // API Routes
         app.MapControllers();
-
-        // Razor Pages (Identity)
         app.MapRazorPages();
 
         app.Run();

@@ -332,6 +332,7 @@ public sealed class StorageProvidersController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> TestConnection(Guid id, CancellationToken cancellationToken = default)
     {
         try
@@ -354,6 +355,7 @@ public sealed class StorageProvidersController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> TestAllConnections(CancellationToken cancellationToken = default)
     {
         var providers = await _storageProviderRepository.GetEnabledProvidersAsync(cancellationToken);

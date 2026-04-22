@@ -1,15 +1,17 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 /// <summary>
 /// Base controller for all API controllers with common functionality.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
 [Authorize]
 [Produces("application/json")]
+[EnableRateLimiting("api")]
 public abstract class ApiBaseController : ControllerBase
 {
     /// <summary>

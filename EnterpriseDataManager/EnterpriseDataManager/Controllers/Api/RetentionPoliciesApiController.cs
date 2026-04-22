@@ -1,5 +1,6 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Application.DTOs;
 using EnterpriseDataManager.Core.Interfaces.Services;
@@ -9,7 +10,8 @@ using EnterpriseDataManager.Filters;
 /// <summary>
 /// API controller for managing retention policies.
 /// </summary>
-[Route("api/retention-policies")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/retention-policies")]
 public class RetentionPoliciesApiController : ApiBaseController
 {
     private readonly IRetentionPolicyService _retentionPolicyService;

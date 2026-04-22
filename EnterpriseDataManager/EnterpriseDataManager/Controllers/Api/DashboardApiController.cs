@@ -1,14 +1,18 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
+using Asp.Versioning;
+using EnterpriseDataManager.Data;
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Core.Interfaces.Services;
 using EnterpriseDataManager.Core.Interfaces.Repositories;
 using EnterpriseDataManager.Core.Enums;
+using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// API controller for dashboard data and statistics.
 /// </summary>
-[Route("api/dashboard")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/dashboard")]
 public class DashboardApiController : ApiBaseController
 {
     private readonly IArchivePlanRepository _archivePlanRepository;
@@ -16,6 +20,7 @@ public class DashboardApiController : ApiBaseController
     private readonly IRecoveryJobRepository _recoveryJobRepository;
     private readonly IStorageProviderRepository _storageProviderRepository;
     private readonly IAuditService _auditService;
+    private readonly EnterpriseDataManagerDbContext _db;
     private readonly ILogger<DashboardApiController> _logger;
 
     public DashboardApiController(
@@ -24,6 +29,7 @@ public class DashboardApiController : ApiBaseController
         IRecoveryJobRepository recoveryJobRepository,
         IStorageProviderRepository storageProviderRepository,
         IAuditService auditService,
+        EnterpriseDataManagerDbContext db,
         ILogger<DashboardApiController> logger)
     {
         _archivePlanRepository = archivePlanRepository;
@@ -31,7 +37,67 @@ public class DashboardApiController : ApiBaseController
         _recoveryJobRepository = recoveryJobRepository;
         _storageProviderRepository = storageProviderRepository;
         _auditService = auditService;
+        _db = db;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Gets aggregated summary data for the dashboard (Phase 4).
+    /// </summary>
+    [HttpGet("summary")]
+    [ProducesResponseType(typeof(DashboardSummaryDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DashboardSummaryDto>> GetSummary(CancellationToken cancellationToken = default)
+    {
+        var totalJobs = await _db.ArchiveJobs.AsNoTracking().CountAsync(cancellationToken);
+        var successfulJobs = await _db.ArchiveJobs.AsNoTracking().CountAsync(j => j.Status == ArchiveStatus.Completed, cancellationToken);
+        var failedJobs = await _db.ArchiveJobs.AsNoTracking().CountAsync(j => j.Status == ArchiveStatus.Failed, cancellationToken);
+        var pendingJobs = await _db.ArchiveJobs.AsNoTracking().CountAsync(j => j.Status == ArchiveStatus.Draft || j.Status == ArchiveStatus.Scheduled, cancellationToken);
+        var totalItems = await _db.ArchiveItems.AsNoTracking().CountAsync(cancellationToken);
+        var totalSize = await _db.ArchiveJobs.AsNoTracking().SumAsync(j => j.ProcessedBytes, cancellationToken);
+        var activePolicies = await _db.RetentionPolicies.AsNoTracking().CountAsync(cancellationToken);
+
+        var rawRecentJobs = await _db.ArchiveJobs
+            .AsNoTracking()
+            .Include(j => j.ArchivePlan)
+            .OrderByDescending(j => j.CreatedAt)
+            .Take(10)
+            .ToListAsync(cancellationToken);
+
+        var recentJobs = rawRecentJobs.Select(j => new RecentJobDto
+        {
+            Id = j.Id,
+            Label = j.ArchivePlan != null ? j.ArchivePlan.Name : j.Id.ToString()[..8],
+            Status = j.Status.ToString(),
+            CreatedAt = j.CreatedAt
+        }).ToList();
+
+        var storageByProvider = await _db.StorageProviders
+            .AsNoTracking()
+            .Select(p => new StorageByProviderDto
+            {
+                ProviderName = p.Name,
+                ItemCount = p.ArchivePlans
+                    .SelectMany(pl => pl.ArchiveJobs)
+                    .SelectMany(j => j.Items)
+                    .Count(),
+                TotalSizeBytes = p.ArchivePlans
+                    .SelectMany(pl => pl.ArchiveJobs)
+                    .Sum(j => j.ProcessedBytes)
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(new DashboardSummaryDto
+        {
+            TotalArchiveJobs = totalJobs,
+            SuccessfulJobs = successfulJobs,
+            FailedJobs = failedJobs,
+            PendingJobs = pendingJobs,
+            TotalArchivedItems = totalItems,
+            TotalSizeBytes = totalSize,
+            ActiveRetentionPolicies = activePolicies,
+            RecentJobs = recentJobs,
+            StorageByProvider = storageByProvider
+        });
     }
 
     /// <summary>
@@ -309,6 +375,34 @@ public record ComponentHealthDto
     public string Name { get; init; } = "";
     public string Status { get; init; } = "";
     public string? Message { get; init; }
+}
+
+public record DashboardSummaryDto
+{
+    public int TotalArchiveJobs { get; init; }
+    public int SuccessfulJobs { get; init; }
+    public int FailedJobs { get; init; }
+    public int PendingJobs { get; init; }
+    public int TotalArchivedItems { get; init; }
+    public long TotalSizeBytes { get; init; }
+    public int ActiveRetentionPolicies { get; init; }
+    public List<RecentJobDto> RecentJobs { get; init; } = new();
+    public List<StorageByProviderDto> StorageByProvider { get; init; } = new();
+}
+
+public record RecentJobDto
+{
+    public Guid Id { get; init; }
+    public string Label { get; init; } = "";
+    public string Status { get; init; } = "";
+    public DateTimeOffset CreatedAt { get; init; }
+}
+
+public record StorageByProviderDto
+{
+    public string ProviderName { get; init; } = "";
+    public int ItemCount { get; init; }
+    public long TotalSizeBytes { get; init; }
 }
 
 #endregion

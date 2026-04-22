@@ -159,8 +159,36 @@ public class TapeDeviceAdapter : ITapeDeviceAdapter
         }
     }
 
+    private static bool? _mtAvailable;
+
+    private static bool IsMtToolAvailable()
+    {
+        if (_mtAvailable.HasValue) return _mtAvailable.Value;
+
+        var executable = OperatingSystem.IsWindows() ? "mt.exe" : "mt";
+        var paths = (Environment.GetEnvironmentVariable("PATH") ?? "")
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
+
+        _mtAvailable = paths.Any(dir =>
+        {
+            try { return File.Exists(Path.Combine(dir, executable)); }
+            catch { return false; }
+        });
+
+        return _mtAvailable.Value;
+    }
+
     private async Task<string> ExecuteTapeCommandAsync(string command, string args, CancellationToken cancellationToken, string? input = null)
     {
+        if (!IsMtToolAvailable())
+        {
+            var tool = OperatingSystem.IsWindows() ? "mt.exe" : "mt";
+            throw new PlatformNotSupportedException(
+                $"Tape operations require '{tool}' in PATH. " +
+                "On Windows, install the Windows Tape Tools from your tape drive vendor SDK. " +
+                "For development and testing, configure MockTapeAdapter instead.");
+        }
+
         var isWindows = OperatingSystem.IsWindows();
         var processInfo = new ProcessStartInfo
         {

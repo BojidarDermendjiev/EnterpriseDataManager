@@ -1,5 +1,6 @@
 namespace EnterPriceDataManager.Controllers.MVC;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using EnterpriseDataManager.Application.DTOs;
 using EnterpriseDataManager.Core.Interfaces.Services;
@@ -11,7 +12,8 @@ using EnterpriseDataManager.Controllers.Api;
 /// <summary>
 /// API controller for managing storage providers.
 /// </summary>
-[Route("api/storage-providers")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/storage-providers")]
 public class StorageProvidersApiController : ApiBaseController
 {
     private readonly IStorageService _storageService;

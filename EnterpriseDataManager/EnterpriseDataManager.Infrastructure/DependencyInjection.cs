@@ -89,6 +89,12 @@ public static class DependencyInjection
         // Policy engine
         services.AddScoped<IPolicyEngine, PolicyEngine>();
 
+        // Share / ACL service
+        services.AddScoped<IShareService, ShareService>();
+
+        // Report generation service
+        services.AddScoped<IReportService, ReportService>();
+
         return services;
     }
 
@@ -357,8 +363,8 @@ public static class DependencyInjection
             services.Configure<IdentityOptions>(options => { });
         }
 
-        // MFA State Store (in-memory by default)
-        services.AddSingleton<IMfaStateStore, InMemoryMfaStateStore>();
+        // MFA State Store — DB-backed so sessions survive restarts
+        services.AddSingleton<IMfaStateStore, DbMfaStateStore>();
 
         // TOTP MFA Provider options
         var totpSection = configuration.GetSection(TotpOptions.SectionName);
@@ -406,6 +412,10 @@ public static class DependencyInjection
         // User context services needed by app services/filters
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        // JWT
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         return services;
     }

@@ -18,14 +18,34 @@ public class EnterpriseDataManagerDbContext : IdentityDbContext
     public DbSet<ArchiveItem> ArchiveItems => Set<ArchiveItem>();
     public DbSet<RecoveryJob> RecoveryJobs => Set<RecoveryJob>();
     public DbSet<RetentionPolicy> RetentionPolicies => Set<RetentionPolicy>();
+    public DbSet<MfaState> MfaStates => Set<MfaState>();
     public DbSet<StorageProvider> StorageProviders => Set<StorageProvider>();
     public DbSet<AuditRecord> AuditRecords => Set<AuditRecord>();
+    public DbSet<ScheduledJobRecord> ScheduledJobRecords => Set<ScheduledJobRecord>();
+    public DbSet<FilePermission> FilePermissions => Set<FilePermission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        modelBuilder.Entity<MfaState>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+            entity.Property(e => e.StateJson).IsRequired();
+            entity.ToTable("MfaStates");
+        });
+
+        modelBuilder.Entity<ScheduledJobRecord>(entity =>
+        {
+            entity.HasKey(e => e.JobId);
+            entity.Property(e => e.JobId).HasMaxLength(36).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(256).IsRequired();
+            entity.Property(e => e.CronExpression).HasMaxLength(100).IsRequired();
+            entity.ToTable("ScheduledJobRecords");
+        });
 
         ApplyGlobalQueryFilters(modelBuilder);
     }

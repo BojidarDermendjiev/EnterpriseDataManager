@@ -1,34 +1,61 @@
 @model EnterpriseDataManager.Controllers.MVC.ReportsViewModel
 @{
     ViewData["Title"] = "Reports";
+    var fromDefault = Model.DefaultFrom.ToString("yyyy-MM-dd");
+    var toDefault = Model.DefaultTo.ToString("yyyy-MM-dd");
 }
 
-<!-- Page Header -->
 <div class="page-header">
     <div>
-        <h1 class="page-title">Reports & Analytics</h1>
-        <p class="page-subtitle">View system statistics, job history, and performance metrics</p>
-    </div>
-    <div class="page-actions">
-        <button class="btn btn-secondary" onclick="exportReport('pdf')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Export PDF
-        </button>
-        <button class="btn btn-secondary" onclick="exportReport('csv')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            Export CSV
-        </button>
+        <h1 class="page-title">Reports &amp; Analytics</h1>
+        <p class="page-subtitle">View system statistics and export reports</p>
     </div>
 </div>
 
-<!-- Summary Cards -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title">Export Reports</h3>
+        <span class="fs-sm text-secondary">Select a date range and download format</span>
+    </div>
+    <div class="card-body">
+        <div class="d-flex gap-3 align-items-end" style="flex-wrap: wrap;">
+            <div>
+                <label class="form-label fs-sm mb-1">From</label>
+                <input type="date" id="reportFrom" class="form-control" value="@fromDefault" style="width: auto;" />
+            </div>
+            <div>
+                <label class="form-label fs-sm mb-1">To</label>
+                <input type="date" id="reportTo" class="form-control" value="@toDefault" style="width: auto;" />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary" onclick="downloadReport('archive-jobs/excel')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Archive Jobs (Excel)
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="downloadReport('archive-jobs/pdf')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Archive Jobs (PDF)
+                </button>
+                <button type="button" class="btn btn-outline" onclick="downloadReport('audit-log/excel')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Audit Log (Excel)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card h-100">
@@ -109,7 +136,6 @@
     </div>
 </div>
 
-<!-- Status Overview -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="card h-100">
@@ -150,55 +176,6 @@
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header">
-                <h3 class="card-title">System Health</h3>
-            </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="rounded-circle p-2 me-3" style="background: rgba(16, 185, 129, 0.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success-color)" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-medium">Database Connection</p>
-                        <small class="text-success">Connected</small>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <div class="rounded-circle p-2 me-3" style="background: rgba(16, 185, 129, 0.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success-color)" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-medium">Storage Services</p>
-                        <small class="text-success">All operational</small>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle p-2 me-3" style="background: rgba(16, 185, 129, 0.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success-color)" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-medium">Background Jobs</p>
-                        <small class="text-success">Running normally</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Jobs Tables -->
-<div class="row g-3">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
                 <h3 class="card-title">Recent Archive Jobs</h3>
                 <a asp-controller="ArchiveJobs" asp-action="Index" class="btn btn-sm btn-outline">View All</a>
             </div>
@@ -208,7 +185,6 @@
                         <tr>
                             <th>Job ID</th>
                             <th>Status</th>
-                            <th>Progress</th>
                             <th>Created</th>
                         </tr>
                     </thead>
@@ -218,74 +194,15 @@
                             @foreach (var job in Model.RecentArchiveJobs)
                             {
                                 <tr>
-                                    <td>
-                                        <code class="fs-xs">@job.Id.ToString().Substring(0, 8)...</code>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge @GetStatusClass(job.Status)">@job.Status</span>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar" style="width: @(job.TotalItemCount > 0 ? (job.ProcessedItemCount * 100 / job.TotalItemCount) : 0)%"></div>
-                                        </div>
-                                    </td>
+                                    <td><code class="fs-xs">@job.Id.ToString()[..8]…</code></td>
+                                    <td><span class="status-badge @GetStatusClass(job.Status)">@job.Status</span></td>
                                     <td class="fs-sm text-muted">@job.CreatedAt.ToString("MMM dd, HH:mm")</td>
                                 </tr>
                             }
                         }
                         else
                         {
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No archive jobs found</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Recent Recovery Jobs</h3>
-                <a asp-controller="RecoveryJobs" asp-action="Index" class="btn btn-sm btn-outline">View All</a>
-            </div>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Job ID</th>
-                            <th>Status</th>
-                            <th>Progress</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.RecentRecoveryJobs.Any())
-                        {
-                            @foreach (var job in Model.RecentRecoveryJobs)
-                            {
-                                <tr>
-                                    <td>
-                                        <code class="fs-xs">@job.Id.ToString().Substring(0, 8)...</code>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge @GetStatusClass(job.Status)">@job.Status</span>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar" style="width: @(job.TotalItems > 0 ? (job.RecoveredItems * 100 / job.TotalItems) : 0)%"></div>
-                                        </div>
-                                    </td>
-                                    <td class="fs-sm text-muted">@job.CreatedAt.ToString("MMM dd, HH:mm")</td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No recovery jobs found</td>
-                            </tr>
+                            <tr><td colspan="3" class="text-center text-muted py-3">No archive jobs found</td></tr>
                         }
                     </tbody>
                 </table>
@@ -300,31 +217,27 @@
         string[] sizes = { "B", "KB", "MB", "GB", "TB" };
         int order = 0;
         double size = bytes;
-        while (size >= 1024 && order < sizes.Length - 1)
-        {
-            order++;
-            size /= 1024;
-        }
+        while (size >= 1024 && order < sizes.Length - 1) { order++; size /= 1024; }
         return $"{size:0.##} {sizes[order]}";
     }
 
-    string GetStatusClass(EnterpriseDataManager.Core.Enums.ArchiveStatus status)
+    string GetStatusClass(EnterpriseDataManager.Core.Enums.ArchiveStatus status) => status switch
     {
-        return status switch
-        {
-            EnterpriseDataManager.Core.Enums.ArchiveStatus.Completed => "status-active",
-            EnterpriseDataManager.Core.Enums.ArchiveStatus.Running => "status-running",
-            EnterpriseDataManager.Core.Enums.ArchiveStatus.Failed => "status-failed",
-            EnterpriseDataManager.Core.Enums.ArchiveStatus.Canceled => "status-inactive",
-            _ => ""
-        };
-    }
+        EnterpriseDataManager.Core.Enums.ArchiveStatus.Completed => "status-active",
+        EnterpriseDataManager.Core.Enums.ArchiveStatus.Running => "status-running",
+        EnterpriseDataManager.Core.Enums.ArchiveStatus.Failed => "status-failed",
+        EnterpriseDataManager.Core.Enums.ArchiveStatus.Canceled => "status-inactive",
+        _ => ""
+    };
 }
 
 @section Scripts {
 <script>
-    function exportReport(format) {
-        alert('Export to ' + format.toUpperCase() + ' will be implemented.');
+    function downloadReport(type) {
+        var from = document.getElementById('reportFrom').value;
+        var to = document.getElementById('reportTo').value;
+        var url = '/api/reports/' + type + '?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to + 'T23:59:59Z');
+        window.location.href = url;
     }
 </script>
 }

@@ -1,0 +1,62 @@
+@using EnterpriseDataManager.Controllers.MVC
+@model SimulateViewModel
+@{
+    ViewData["Title"] = "Simulate Recovery";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Simulate Recovery</h1>
+        <p class="page-subtitle">Run a non-destructive simulation — no files will be written to disk</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="RecoveryWizard" asp-action="Index" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">Step 2: Confirm Simulation</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Recovery Job ID</dt>
+            <dd class="col-sm-9"><code>@Model.JobId</code></dd>
+            <dt class="col-sm-3">Destination Path</dt>
+            <dd class="col-sm-9">@Model.DestinationPath</dd>
+        </dl>
+
+        @if (Model.Succeeded)
+        {
+            <div class="alert alert-success">
+                <strong>Simulation started successfully.</strong>
+                <pre class="mt-2 fs-sm">@Model.ResultJson</pre>
+            </div>
+        }
+        else
+        {
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <form asp-action="Simulate" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="JobId" />
+                <input type="hidden" asp-for="DestinationPath" />
+
+                <div class="alert alert-info">
+                    Clicking <strong>Run Simulation</strong> will clone this recovery job and mark it as a simulation.
+                    No actual files will be restored.
+                </div>
+
+                <button type="submit" class="btn btn-primary">Run Simulation</button>
+            </form>
+        }
+    </div>
+</div>

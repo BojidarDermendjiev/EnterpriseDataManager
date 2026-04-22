@@ -1,5 +1,8 @@
 namespace EnterpriseDataManager.Infrastructure.BackgroundJobs;
 
+using EnterpriseDataManager.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,15 +35,18 @@ public class RetentionPolicyEnforcer : BackgroundService, IRetentionPolicyEnforc
 {
     private readonly RetentionPolicyEnforcerOptions _options;
     private readonly ILogger<RetentionPolicyEnforcer>? _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ConcurrentDictionary<string, RetentionPolicy> _policies = new();
     private readonly ConcurrentQueue<RetentionEnforcementResult> _enforcementHistory = new();
     private readonly ConcurrentDictionary<string, RetentionHold> _holds = new();
 
     public RetentionPolicyEnforcer(
         IOptions<RetentionPolicyEnforcerOptions> options,
+        IServiceScopeFactory scopeFactory,
         ILogger<RetentionPolicyEnforcer>? logger = null)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         _logger = logger;
 
         InitializePolicies();
@@ -421,43 +427,77 @@ public class RetentionPolicyEnforcer : BackgroundService, IRetentionPolicyEnforc
             Errors: errors);
     }
 
-    private Task<List<RetentionItem>> GetAffectedItemsAsync(
+    private async Task<List<RetentionItem>> GetAffectedItemsAsync(
         RetentionPolicy policy,
         CancellationToken cancellationToken)
     {
-        // In production, this would query the actual storage/database
-        // For now, return simulated items
-        var items = new List<RetentionItem>
-        {
-            new RetentionItem(
-                Path: "/archive/2023/old-data.zip",
-                CreatedAt: DateTimeOffset.UtcNow.AddDays(-400),
-                LastAccessedAt: DateTimeOffset.UtcNow.AddDays(-300),
-                SizeBytes: 1024 * 1024 * 100)
-        };
-
         var cutoffDate = DateTimeOffset.UtcNow.Subtract(policy.RetentionPeriod);
-        var affectedItems = items.Where(i => i.CreatedAt < cutoffDate).ToList();
 
-        return Task.FromResult(affectedItems);
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+        var query = db.ArchiveItems
+            .Where(ai => !ai.IsDeleted && ai.Success == true && ai.CreatedAt < cutoffDate);
+
+        var raw = await query
+            .Select(ai => new { ai.TargetPath, ai.CreatedAt, ai.ProcessedAt, ai.SizeBytes })
+            .ToListAsync(cancellationToken);
+
+        if (policy.TargetPaths.Count > 0)
+        {
+            raw = raw
+                .Where(ai => policy.TargetPaths.Any(p =>
+                    ai.TargetPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+
+        return raw
+            .Select(ai => new RetentionItem(
+                Path: ai.TargetPath,
+                CreatedAt: ai.CreatedAt,
+                LastAccessedAt: ai.ProcessedAt ?? ai.CreatedAt,
+                SizeBytes: ai.SizeBytes))
+            .ToList();
     }
 
-    private Task DeleteItemAsync(RetentionItem item, CancellationToken cancellationToken)
+    private async Task DeleteItemAsync(RetentionItem item, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Deleting item {Path} (Size: {Size} bytes)", item.Path, item.SizeBytes);
-        return Task.CompletedTask;
+        _logger?.LogInformation("Deleting item {Path} ({Size} bytes)", item.Path, item.SizeBytes);
+
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+        var archiveItem = await db.ArchiveItems
+            .FirstOrDefaultAsync(ai => ai.TargetPath == item.Path, cancellationToken);
+
+        if (archiveItem is not null)
+        {
+            archiveItem.Delete();
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 
-    private Task SoftDeleteItemAsync(RetentionItem item, CancellationToken cancellationToken)
+    private async Task SoftDeleteItemAsync(RetentionItem item, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Soft deleting item {Path} with grace period {GracePeriod}",
-            item.Path, _options.SoftDeleteGracePeriod);
-        return Task.CompletedTask;
+        _logger?.LogInformation("Soft deleting item {Path} (grace period: {Grace})", item.Path, _options.SoftDeleteGracePeriod);
+
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+        var archiveItem = await db.ArchiveItems
+            .FirstOrDefaultAsync(ai => ai.TargetPath == item.Path, cancellationToken);
+
+        if (archiveItem is not null)
+        {
+            archiveItem.Delete();
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private Task ArchiveItemAsync(RetentionItem item, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Archiving item {Path} to cold storage", item.Path);
+        _logger?.LogWarning(
+            "Cold-storage archival for item {Path} is not yet implemented — skipping", item.Path);
         return Task.CompletedTask;
     }
 }

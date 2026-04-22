@@ -1,11 +1,16 @@
 namespace EnterpriseDataManager.Infrastructure.BackgroundJobs;
 
+using EnterpriseDataManager.Data;
 using EnterpriseDataManager.Infrastructure.ExternalServices;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net.Sockets;
 
 public class HealthCheckMonitorOptions
 {
@@ -35,6 +40,8 @@ public class HealthCheckMonitor : BackgroundService, IHealthCheckMonitor
     private readonly HealthCheckMonitorOptions _options;
     private readonly INotificationService? _notificationService;
     private readonly ILogger<HealthCheckMonitor>? _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IMemoryCache _memoryCache;
     private readonly ConcurrentDictionary<string, ComponentHealth> _componentHealth = new();
     private readonly ConcurrentQueue<HealthCheckResult> _healthHistory = new();
     private readonly ConcurrentDictionary<string, int> _consecutiveFailures = new();
@@ -43,10 +50,14 @@ public class HealthCheckMonitor : BackgroundService, IHealthCheckMonitor
 
     public HealthCheckMonitor(
         IOptions<HealthCheckMonitorOptions> options,
+        IServiceScopeFactory scopeFactory,
+        IMemoryCache memoryCache,
         INotificationService? notificationService = null,
         ILogger<HealthCheckMonitor>? logger = null)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         _notificationService = notificationService;
         _logger = logger;
 
@@ -339,61 +350,102 @@ public class HealthCheckMonitor : BackgroundService, IHealthCheckMonitor
         };
     }
 
-    private Task<(bool, string, Dictionary<string, object>?)> CheckDatabaseAsync(
+    private async Task<(bool, string, Dictionary<string, object>?)> CheckDatabaseAsync(
         ComponentHealth component,
         CancellationToken cancellationToken)
     {
-        // Simulated database check
-        var metadata = new Dictionary<string, object>
+        try
         {
-            ["connections_active"] = 5,
-            ["connections_max"] = 100
-        };
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
 
-        return Task.FromResult((true, "Database connection successful", metadata));
+            var sw = Stopwatch.StartNew();
+            var canConnect = await db.Database.CanConnectAsync(cancellationToken);
+            sw.Stop();
+
+            var metadata = new Dictionary<string, object>
+            {
+                ["response_ms"] = sw.ElapsedMilliseconds,
+                ["provider"] = db.Database.ProviderName ?? "unknown"
+            };
+
+            return canConnect
+                ? (true, "Database connection successful", metadata)
+                : (false, "Database CanConnect returned false", metadata);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Database check failed: {ex.Message}", null);
+        }
     }
 
     private Task<(bool, string, Dictionary<string, object>?)> CheckStorageAsync(
         ComponentHealth component,
         CancellationToken cancellationToken)
     {
-        // Simulated storage check
-        var metadata = new Dictionary<string, object>
+        try
         {
-            ["used_gb"] = 150,
-            ["total_gb"] = 500,
-            ["usage_percent"] = 30
-        };
+            var drives = DriveInfo.GetDrives()
+                .Where(d => d.IsReady)
+                .Select(d => new
+                {
+                    d.Name,
+                    FreeGb = Math.Round(d.AvailableFreeSpace / (1024.0 * 1024 * 1024), 2),
+                    TotalGb = Math.Round(d.TotalSize / (1024.0 * 1024 * 1024), 2),
+                    UsagePct = Math.Round((1.0 - (double)d.AvailableFreeSpace / d.TotalSize) * 100, 1)
+                })
+                .ToList();
 
-        return Task.FromResult((true, "Storage accessible", metadata));
+            var criticalDrive = drives.FirstOrDefault(d => d.UsagePct > 90);
+            var metadata = new Dictionary<string, object>
+            {
+                ["drives"] = drives.Count,
+                ["total_free_gb"] = drives.Sum(d => d.FreeGb),
+                ["usage_pct_max"] = drives.Any() ? drives.Max(d => d.UsagePct) : 0
+            };
+
+            return criticalDrive is not null
+                ? Task.FromResult((false, $"Drive {criticalDrive.Name} usage at {criticalDrive.UsagePct}%", (Dictionary<string, object>?)metadata))
+                : Task.FromResult((true, "Storage healthy", (Dictionary<string, object>?)metadata));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult<(bool, string, Dictionary<string, object>?)>((false, $"Storage check failed: {ex.Message}", null));
+        }
     }
 
     private Task<(bool, string, Dictionary<string, object>?)> CheckCacheAsync(
         ComponentHealth component,
         CancellationToken cancellationToken)
     {
-        // Simulated cache check
-        var metadata = new Dictionary<string, object>
+        try
         {
-            ["hit_rate"] = 0.95,
-            ["memory_mb"] = 256
-        };
+            const string testKey = "_healthcheck_probe";
+            const string testValue = "ok";
 
-        return Task.FromResult((true, "Cache operational", metadata));
+            _memoryCache.Set(testKey, testValue, TimeSpan.FromSeconds(5));
+            var retrieved = _memoryCache.TryGetValue(testKey, out string? val);
+
+            var isHealthy = retrieved && val == testValue;
+            var metadata = new Dictionary<string, object> { ["probe"] = isHealthy ? "pass" : "fail" };
+
+            return Task.FromResult(isHealthy
+                ? (true, "Cache operational", (Dictionary<string, object>?)metadata)
+                : (false, "Cache probe failed — set/get mismatch", (Dictionary<string, object>?)metadata));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult<(bool, string, Dictionary<string, object>?)>((false, $"Cache check failed: {ex.Message}", null));
+        }
     }
 
     private Task<(bool, string, Dictionary<string, object>?)> CheckMessageQueueAsync(
         ComponentHealth component,
         CancellationToken cancellationToken)
     {
-        // Simulated message queue check
-        var metadata = new Dictionary<string, object>
-        {
-            ["pending_messages"] = 42,
-            ["consumers"] = 3
-        };
-
-        return Task.FromResult((true, "Message queue operational", metadata));
+        // No message queue is configured in this application — report as not applicable
+        var metadata = new Dictionary<string, object> { ["status"] = "not_configured" };
+        return Task.FromResult((true, "No message queue configured", (Dictionary<string, object>?)metadata));
     }
 
     private async Task<(bool, string, Dictionary<string, object>?)> CheckExternalApiAsync(
@@ -449,7 +501,7 @@ public class HealthCheckMonitor : BackgroundService, IHealthCheckMonitor
                 ["total_free_gb"] = drives.Sum(d => d.FreeGB)
             };
 
-            return Task.FromResult((true, "File system accessible", metadata));
+            return Task.FromResult((true, "File system accessible", (Dictionary<string, object>?)metadata));
         }
         catch (Exception ex)
         {
@@ -457,18 +509,32 @@ public class HealthCheckMonitor : BackgroundService, IHealthCheckMonitor
         }
     }
 
-    private Task<(bool, string, Dictionary<string, object>?)> CheckNetworkAsync(
+    private async Task<(bool, string, Dictionary<string, object>?)> CheckNetworkAsync(
         ComponentHealth component,
         CancellationToken cancellationToken)
     {
-        // Simulated network check
-        var metadata = new Dictionary<string, object>
-        {
-            ["latency_ms"] = 15,
-            ["packet_loss"] = 0.0
-        };
+        var target = component.Endpoint ?? "8.8.8.8";
+        const int port = 53;
 
-        return Task.FromResult((true, "Network connectivity OK", metadata));
+        try
+        {
+            var sw = Stopwatch.StartNew();
+            using var tcp = new TcpClient();
+            await tcp.ConnectAsync(target, port, cancellationToken);
+            sw.Stop();
+
+            var metadata = new Dictionary<string, object>
+            {
+                ["target"] = $"{target}:{port}",
+                ["latency_ms"] = sw.ElapsedMilliseconds
+            };
+
+            return (true, $"Network reachable ({sw.ElapsedMilliseconds} ms)", metadata);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Network check failed for {target}:{port} — {ex.Message}", null);
+        }
     }
 
     private void UpdateComponentHealth(string componentName, ComponentCheckResult result)

@@ -42,6 +42,10 @@ public class RecoveryJobConfiguration : IEntityTypeConfiguration<RecoveryJob>
             .IsRequired()
             .HasDefaultValue(0L);
 
+        builder.Property(x => x.IsSimulation)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.HasOne(x => x.ArchiveJob)
             .WithMany()
             .HasForeignKey(x => x.ArchiveJobId)

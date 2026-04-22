@@ -1,6 +1,12 @@
 namespace EnterpriseDataManager.Infrastructure.BackgroundJobs;
 
 using Cronos;
+using EnterpriseDataManager.Core.Interfaces.Services;
+using EnterpriseDataManager.Data;
+using AlertSeverity = EnterpriseDataManager.Infrastructure.ExternalServices.AlertSeverity;
+using INotificationService = EnterpriseDataManager.Infrastructure.ExternalServices.INotificationService;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +20,8 @@ public class ArchivalJobSchedulerOptions
     public TimeSpan PollingInterval { get; set; } = TimeSpan.FromMinutes(1);
     public int MaxConcurrentJobs { get; set; } = 4;
     public TimeSpan JobTimeout { get; set; } = TimeSpan.FromHours(4);
+    public int MaxJobRetries { get; set; } = 3;
+    public TimeSpan InitialRetryDelay { get; set; } = TimeSpan.FromSeconds(30);
     public List<ScheduledJobConfiguration> Jobs { get; set; } = new();
 }
 
@@ -30,6 +38,8 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
 {
     private readonly ArchivalJobSchedulerOptions _options;
     private readonly ILogger<ArchivalJobScheduler>? _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly INotificationService? _notificationService;
     private readonly ConcurrentDictionary<string, ScheduledJob> _scheduledJobs = new();
     private readonly ConcurrentDictionary<string, JobExecution> _runningJobs = new();
     private readonly ConcurrentQueue<JobExecution> _jobHistory = new();
@@ -37,16 +47,20 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
 
     public ArchivalJobScheduler(
         IOptions<ArchivalJobSchedulerOptions> options,
+        IServiceScopeFactory scopeFactory,
+        INotificationService? notificationService = null,
         ILogger<ArchivalJobScheduler>? logger = null)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _notificationService = notificationService;
         _logger = logger;
         _jobSemaphore = new SemaphoreSlim(_options.MaxConcurrentJobs, _options.MaxConcurrentJobs);
 
         InitializeScheduledJobs();
     }
 
-    public Task<string> ScheduleJobAsync(
+    public async Task<string> ScheduleJobAsync(
         string name,
         string cronExpression,
         JobType jobType,
@@ -73,44 +87,49 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
         _logger?.LogInformation("Scheduled job {JobName} ({JobId}) with cron {Cron}, next run at {NextRun}",
             name, jobId, cronExpression, job.NextRunAt);
 
-        return Task.FromResult(jobId);
+        await PersistJobAsync(job, cancellationToken);
+
+        return jobId;
     }
 
-    public Task<bool> CancelJobAsync(string jobId, CancellationToken cancellationToken = default)
+    public async Task<bool> CancelJobAsync(string jobId, CancellationToken cancellationToken = default)
     {
         var removed = _scheduledJobs.TryRemove(jobId, out var job);
 
         if (removed)
         {
             _logger?.LogInformation("Cancelled scheduled job {JobName} ({JobId})", job!.Name, jobId);
+            await RemovePersistedJobAsync(jobId, CancellationToken.None);
         }
 
-        return Task.FromResult(removed);
+        return removed;
     }
 
-    public Task<bool> DisableJobAsync(string jobId, CancellationToken cancellationToken = default)
+    public async Task<bool> DisableJobAsync(string jobId, CancellationToken cancellationToken = default)
     {
         if (_scheduledJobs.TryGetValue(jobId, out var job))
         {
             _scheduledJobs[jobId] = job with { IsEnabled = false };
             _logger?.LogInformation("Disabled job {JobName} ({JobId})", job.Name, jobId);
-            return Task.FromResult(true);
+            await PersistJobAsync(_scheduledJobs[jobId], CancellationToken.None);
+            return true;
         }
 
-        return Task.FromResult(false);
+        return false;
     }
 
-    public Task<bool> EnableJobAsync(string jobId, CancellationToken cancellationToken = default)
+    public async Task<bool> EnableJobAsync(string jobId, CancellationToken cancellationToken = default)
     {
         if (_scheduledJobs.TryGetValue(jobId, out var job))
         {
             var nextRun = CalculateNextRunTime(job.ParsedCron);
             _scheduledJobs[jobId] = job with { IsEnabled = true, NextRunAt = nextRun };
             _logger?.LogInformation("Enabled job {JobName} ({JobId}), next run at {NextRun}", job.Name, jobId, nextRun);
-            return Task.FromResult(true);
+            await PersistJobAsync(_scheduledJobs[jobId], CancellationToken.None);
+            return true;
         }
 
-        return Task.FromResult(false);
+        return false;
     }
 
     public async Task<JobExecution> TriggerJobAsync(string jobId, CancellationToken cancellationToken = default)
@@ -164,6 +183,8 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
         }
 
         _logger?.LogInformation("Archival job scheduler started");
+
+        await LoadJobsFromDatabaseAsync(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -275,7 +296,7 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
                 using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 timeoutCts.CancelAfter(_options.JobTimeout);
 
-                var result = await RunJobAsync(job, timeoutCts.Token);
+                var result = await ExecuteWithRetryAsync(job, timeoutCts.Token);
 
                 execution = execution with
                 {
@@ -285,10 +306,15 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
                     BytesProcessed = result.BytesProcessed
                 };
 
-                // Update last run time
+                // Update last run time and persist
                 if (_scheduledJobs.TryGetValue(job.JobId, out var currentJob))
                 {
                     _scheduledJobs[job.JobId] = currentJob with { LastRunAt = DateTimeOffset.UtcNow };
+                }
+
+                if (_scheduledJobs.TryGetValue(job.JobId, out var updatedJob))
+                {
+                    await PersistJobAsync(updatedJob, CancellationToken.None);
                 }
 
                 _logger?.LogInformation("Job execution {ExecutionId} completed successfully. Items: {Items}, Bytes: {Bytes}",
@@ -336,10 +362,59 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
         return execution;
     }
 
+    private async Task<JobResult> ExecuteWithRetryAsync(ScheduledJob job, CancellationToken cancellationToken)
+    {
+        var attempt = 0;
+        Exception? lastException = null;
+
+        while (attempt <= _options.MaxJobRetries)
+        {
+            try
+            {
+                if (attempt > 0)
+                {
+                    var delay = _options.InitialRetryDelay * Math.Pow(2, attempt - 1);
+                    _logger?.LogWarning("Retrying job {JobName} (attempt {Attempt}/{Max}) after {Delay}",
+                        job.Name, attempt + 1, _options.MaxJobRetries + 1, delay);
+                    await Task.Delay(delay, cancellationToken);
+                }
+
+                return await RunJobAsync(job, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                attempt++;
+                _logger?.LogWarning(ex, "Job {JobName} attempt {Attempt} failed", job.Name, attempt);
+            }
+        }
+
+        // All retries exhausted — send alert
+        if (_notificationService is not null)
+        {
+            try
+            {
+                await _notificationService.SendAlertAsync(
+                    AlertSeverity.Critical,
+                    $"Archive Job Failed: {job.Name}",
+                    $"Job '{job.Name}' (type: {job.JobType}) failed after {_options.MaxJobRetries + 1} attempts. Last error: {lastException?.Message}",
+                    cancellationToken);
+            }
+            catch (Exception notifEx)
+            {
+                _logger?.LogError(notifEx, "Failed to send failure notification for job {JobName}", job.Name);
+            }
+        }
+
+        throw lastException!;
+    }
+
     private async Task<JobResult> RunJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        // Simulate job execution based on type
-        // In production, this would delegate to actual service implementations
         return job.JobType switch
         {
             JobType.ArchiveData => await RunArchiveJobAsync(job, cancellationToken),
@@ -354,50 +429,204 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
 
     private async Task<JobResult> RunArchiveJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Running archive job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken); // Simulated work
-        return new JobResult(ItemsProcessed: 100, BytesProcessed: 1024 * 1024 * 100);
+        if (!job.Parameters.TryGetValue("PlanId", out var planIdStr) || !Guid.TryParse(planIdStr, out var planId))
+        {
+            _logger?.LogWarning("Archive job {JobName} is missing a valid PlanId parameter — skipping", job.Name);
+            return new JobResult(0, 0);
+        }
+
+        _logger?.LogInformation("Running archive job {JobName} for plan {PlanId}", job.Name, planId);
+
+        using var scope = _scopeFactory.CreateScope();
+        var archivalService = scope.ServiceProvider.GetRequiredService<IArchivalService>();
+
+        var archiveJob = await archivalService.CreateJobAsync(planId, cancellationToken: cancellationToken);
+        archiveJob = await archivalService.StartJobAsync(archiveJob.Id, cancellationToken);
+        archiveJob = await archivalService.CompleteJobAsync(archiveJob.Id, cancellationToken);
+
+        _logger?.LogInformation("Archive job {JobName} completed: {Items} items, {Bytes} bytes",
+            job.Name, archiveJob.ProcessedItemCount, archiveJob.ProcessedBytes);
+
+        return new JobResult(archiveJob.ProcessedItemCount, archiveJob.ProcessedBytes);
     }
 
     private async Task<JobResult> RunRestoreJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Running restore job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        return new JobResult(ItemsProcessed: 50, BytesProcessed: 1024 * 1024 * 50);
+        if (!job.Parameters.TryGetValue("ArchiveJobId", out var jobIdStr) || !Guid.TryParse(jobIdStr, out var archiveJobId))
+        {
+            _logger?.LogWarning("Restore job {JobName} is missing a valid ArchiveJobId parameter — skipping", job.Name);
+            return new JobResult(0, 0);
+        }
+
+        var destinationPath = job.Parameters.TryGetValue("DestinationPath", out var dest) ? dest : Path.GetTempPath();
+
+        _logger?.LogInformation("Running restore job {JobName} for archive job {ArchiveJobId}", job.Name, archiveJobId);
+
+        using var scope = _scopeFactory.CreateScope();
+        var recoveryService = scope.ServiceProvider.GetRequiredService<IRecoveryService>();
+
+        var recoveryJob = await recoveryService.CreateRecoveryJobAsync(archiveJobId, destinationPath, cancellationToken);
+        recoveryJob = await recoveryService.StartRecoveryAsync(recoveryJob.Id, cancellationToken);
+        recoveryJob = await recoveryService.CompleteRecoveryAsync(recoveryJob.Id, cancellationToken);
+
+        _logger?.LogInformation("Restore job {JobName} completed for recovery job {RecoveryJobId}", job.Name, recoveryJob.Id);
+        return new JobResult(1, 0);
     }
 
     private async Task<JobResult> RunVerifyIntegrityJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Running integrity verification job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        return new JobResult(ItemsProcessed: 1000, BytesProcessed: 0);
+        if (!job.Parameters.TryGetValue("ArchiveJobId", out var jobIdStr) || !Guid.TryParse(jobIdStr, out var archiveJobId))
+        {
+            _logger?.LogWarning("Integrity job {JobName} is missing a valid ArchiveJobId parameter — skipping", job.Name);
+            return new JobResult(0, 0);
+        }
+
+        _logger?.LogInformation("Running integrity verification for archive job {ArchiveJobId}", archiveJobId);
+
+        using var scope = _scopeFactory.CreateScope();
+        var recoveryService = scope.ServiceProvider.GetRequiredService<IRecoveryService>();
+
+        var isValid = await recoveryService.ValidateArchiveIntegrityAsync(archiveJobId, cancellationToken);
+
+        _logger?.LogInformation("Integrity check for {ArchiveJobId}: {Result}", archiveJobId, isValid ? "PASSED" : "FAILED");
+        return new JobResult(1, 0);
     }
 
     private async Task<JobResult> RunCleanupJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
         _logger?.LogInformation("Running cleanup job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        return new JobResult(ItemsProcessed: 200, BytesProcessed: 1024 * 1024 * 500);
+
+        using var scope = _scopeFactory.CreateScope();
+        var archivalService = scope.ServiceProvider.GetRequiredService<IArchivalService>();
+        await archivalService.ProcessScheduledJobsAsync(cancellationToken);
+
+        return new JobResult(0, 0);
     }
 
-    private async Task<JobResult> RunReplicationJobAsync(ScheduledJob job, CancellationToken cancellationToken)
+    private Task<JobResult> RunReplicationJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Running replication job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        return new JobResult(ItemsProcessed: 150, BytesProcessed: 1024 * 1024 * 200);
+        _logger?.LogWarning("Replication job {JobName} is not yet implemented — skipping", job.Name);
+        return Task.FromResult(new JobResult(0, 0));
     }
 
-    private async Task<JobResult> RunReportJobAsync(ScheduledJob job, CancellationToken cancellationToken)
+    private Task<JobResult> RunReportJobAsync(ScheduledJob job, CancellationToken cancellationToken)
     {
-        _logger?.LogInformation("Running report generation job {JobName}", job.Name);
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        return new JobResult(ItemsProcessed: 1, BytesProcessed: 1024 * 10);
+        _logger?.LogWarning("Report job {JobName} is not yet implemented — skipping", job.Name);
+        return Task.FromResult(new JobResult(0, 0));
     }
 
     private static DateTimeOffset? CalculateNextRunTime(CronExpression cron)
     {
         var next = cron.GetNextOccurrence(DateTimeOffset.UtcNow, TimeZoneInfo.Utc);
         return next;
+    }
+
+    private async Task LoadJobsFromDatabaseAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+            var records = await db.ScheduledJobRecords.ToListAsync(cancellationToken);
+            var loaded = 0;
+
+            foreach (var rec in records)
+            {
+                try
+                {
+                    var parsedCron = CronExpression.Parse(rec.CronExpression, CronFormat.IncludeSeconds);
+                    var parameters = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(rec.ParametersJson)
+                        ?? new Dictionary<string, string>();
+
+                    var job = new ScheduledJob(
+                        JobId: rec.JobId,
+                        Name: rec.Name,
+                        CronExpression: rec.CronExpression,
+                        ParsedCron: parsedCron,
+                        JobType: (JobType)rec.JobType,
+                        Parameters: parameters,
+                        IsEnabled: rec.IsEnabled,
+                        CreatedAt: rec.CreatedAt,
+                        LastRunAt: rec.LastRunAt,
+                        NextRunAt: rec.NextRunAt ?? CalculateNextRunTime(parsedCron));
+
+                    _scheduledJobs[rec.JobId] = job;
+                    loaded++;
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError(ex, "Failed to restore scheduled job {JobId} from database", rec.JobId);
+                }
+            }
+
+            _logger?.LogInformation("Restored {Count} scheduled jobs from database", loaded);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load scheduled jobs from database");
+        }
+    }
+
+    private async Task PersistJobAsync(ScheduledJob job, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+            var parametersJson = System.Text.Json.JsonSerializer.Serialize(job.Parameters);
+            var existing = await db.ScheduledJobRecords.FindAsync(new object[] { job.JobId }, cancellationToken);
+
+            if (existing is null)
+            {
+                db.ScheduledJobRecords.Add(new ScheduledJobRecord
+                {
+                    JobId = job.JobId,
+                    Name = job.Name,
+                    CronExpression = job.CronExpression,
+                    JobType = (int)job.JobType,
+                    ParametersJson = parametersJson,
+                    IsEnabled = job.IsEnabled,
+                    CreatedAt = job.CreatedAt,
+                    LastRunAt = job.LastRunAt,
+                    NextRunAt = job.NextRunAt
+                });
+            }
+            else
+            {
+                existing.Name = job.Name;
+                existing.IsEnabled = job.IsEnabled;
+                existing.LastRunAt = job.LastRunAt;
+                existing.NextRunAt = job.NextRunAt;
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to persist scheduled job {JobId}", job.JobId);
+        }
+    }
+
+    private async Task RemovePersistedJobAsync(string jobId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+            var record = await db.ScheduledJobRecords.FindAsync(new object[] { jobId }, cancellationToken);
+            if (record is not null)
+            {
+                db.ScheduledJobRecords.Remove(record);
+                await db.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to remove persisted job {JobId}", jobId);
+        }
     }
 }
 
