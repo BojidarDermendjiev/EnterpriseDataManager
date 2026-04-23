@@ -1,0 +1,96 @@
+@model EnterpriseDataManager.Core.Entities.RetentionPolicy
+@{
+    ViewData["Title"] = "Retention Policy Details";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Model.Name</h1>
+        <p class="page-subtitle">Retention Policy Details</p>
+    </div>
+    <div class="page-actions">
+        @if (!Model.IsImmutable)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Edit</a>
+        }
+        <a asp-action="Index" class="btn btn-outline">Back to Policies</a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 640px;">
+    <div class="card-header">
+        <h3 class="card-title">Policy Information</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-borderless">
+            <tbody>
+                <tr>
+                    <th style="width: 180px;">Name</th>
+                    <td>@Model.Name</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>@(Model.Description ?? "—")</td>
+                </tr>
+                <tr>
+                    <th>Retention Period</th>
+                    <td>
+                        @if (Model.IsLegalHold)
+                        {
+                            <text>Indefinite (Legal Hold)</text>
+                        }
+                        else if (Model.RetentionPeriod.TotalDays >= 365)
+                        {
+                            <text>@((int)(Model.RetentionPeriod.TotalDays / 365)) year(s) (@((int)Model.RetentionPeriod.TotalDays) days)</text>
+                        }
+                        else
+                        {
+                            <text>@((int)Model.RetentionPeriod.TotalDays) days</text>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Legal Hold</th>
+                    <td>
+                        @if (Model.IsLegalHold)
+                        {
+                            <span class="status-badge status-active">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-inactive">No</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Immutable</th>
+                    <td>
+                        @if (Model.IsImmutable)
+                        {
+                            <span class="status-badge status-active">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-inactive">No</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Scope</th>
+                    <td>@(Model.Scope ?? "All")</td>
+                </tr>
+                <tr>
+                    <th>Created</th>
+                    <td>@Model.CreatedAt.ToString("MMM d, yyyy HH:mm") @(Model.CreatedBy != null ? $"by {Model.CreatedBy}" : "")</td>
+                </tr>
+                @if (Model.UpdatedAt.HasValue)
+                {
+                    <tr>
+                        <th>Last Updated</th>
+                        <td>@Model.UpdatedAt.Value.ToString("MMM d, yyyy HH:mm") @(Model.UpdatedBy != null ? $"by {Model.UpdatedBy}" : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1346,3 +1346,33 @@ textarea.form-control {
 .cursor-pointer {
     cursor: pointer;
 }
+
+/* ── Content-area tabs (Bootstrap tabs inside white cards) ── */
+.card .nav-link,
+.tab-container .nav-link {
+    color: var(--text-primary);
+    background: transparent;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+    border-left: none;
+}
+.card .nav-link:hover,
+.tab-container .nav-link:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+.card .nav-link.active,
+.tab-container .nav-link.active {
+    background: #eff6ff;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+.tab-content > .tab-pane { display: none; }
+.tab-content > .tab-pane.active { display: block; }

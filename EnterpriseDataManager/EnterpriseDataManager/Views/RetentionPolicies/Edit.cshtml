@@ -1,0 +1,88 @@
+@model EnterpriseDataManager.Controllers.MVC.RetentionPolicyFormViewModel
+@{
+    ViewData["Title"] = "Edit Retention Policy";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Edit Retention Policy</h1>
+        <p class="page-subtitle">Update retention policy settings</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Index" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Policies
+        </a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 640px;">
+    <div class="card-header">
+        <h3 class="card-title">Policy Details</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" style="display:none;"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">Policy Name <span class="required">*</span></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger fs-xs"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RetentionDays" class="form-label">Retention Period (days) <span class="required">*</span></label>
+                @if (Model.IsImmutable)
+                {
+                    <input asp-for="RetentionDays" type="number" class="form-control" min="1" max="36500" disabled />
+                    <small class="text-warning">This policy is immutable — the retention period cannot be changed.</small>
+                }
+                else
+                {
+                    <input asp-for="RetentionDays" type="number" class="form-control" min="1" max="36500" />
+                }
+                <span asp-validation-for="RetentionDays" class="text-danger fs-xs"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Scope" class="form-label">Scope</label>
+                <input asp-for="Scope" class="form-control" placeholder="Leave blank for All" />
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input asp-for="IsLegalHold" class="form-check-input" type="checkbox" />
+                    <label asp-for="IsLegalHold" class="form-check-label">Enable Legal Hold</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input asp-for="IsImmutable" class="form-check-input" type="checkbox" disabled />
+                    <label asp-for="IsImmutable" class="form-check-label">Immutable</label>
+                </div>
+                <small class="text-muted">Immutability cannot be revoked once set.</small>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

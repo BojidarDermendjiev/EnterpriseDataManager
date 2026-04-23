@@ -89,8 +89,14 @@
         .auth-form .form-floating > .form-control {
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            height: calc(3.5rem + 2px);
             padding: 1rem 0.875rem;
-            height: auto;
+        }
+
+        .auth-form .form-floating > .form-control:focus,
+        .auth-form .form-floating > .form-control:not(:placeholder-shown) {
+            padding-top: 1.625rem;
+            padding-bottom: 0.625rem;
         }
 
         .auth-form .form-floating > .form-control:focus {
@@ -101,6 +107,13 @@
         .auth-form .form-floating > label {
             padding: 1rem 0.875rem;
             color: var(--text-muted);
+            height: 100%;
+        }
+
+        .auth-form .form-floating > .form-control:focus ~ label,
+        .auth-form .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            opacity: 0.65;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
         }
 
         .auth-remember {

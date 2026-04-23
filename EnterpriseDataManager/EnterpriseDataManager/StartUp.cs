@@ -97,7 +97,7 @@ public static class Startup
         builder.Services.AddMemoryCache();
 
         // Localization
-        builder.Services.AddLocalization();
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         var supportedCultures = new[]
         {
             new CultureInfo("en"),
