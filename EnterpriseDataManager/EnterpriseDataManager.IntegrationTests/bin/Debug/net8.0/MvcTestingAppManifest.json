@@ -1,7 +1,0 @@
-{
-  "EnterpriseDataManager.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Application",
-  "EnterpriseDataManager.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Common",
-  "EnterpriseDataManager.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Core",
-  "EnterpriseDataManager.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Data",
-  "EnterpriseDataManager.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\WORK_PLACE\\EnterpriseDataManager\\EnterpriseDataManager\\EnterpriseDataManager.Infrastructure"
-}
