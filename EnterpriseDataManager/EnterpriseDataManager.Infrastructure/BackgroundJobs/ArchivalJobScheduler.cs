@@ -1,6 +1,7 @@
 namespace EnterpriseDataManager.Infrastructure.BackgroundJobs;
 
 using Cronos;
+using EnterpriseDataManager.Core.Interfaces.Repositories;
 using EnterpriseDataManager.Core.Interfaces.Services;
 using EnterpriseDataManager.Data;
 using AlertSeverity = EnterpriseDataManager.Infrastructure.ExternalServices.AlertSeverity;
@@ -442,7 +443,10 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
 
         var archiveJob = await archivalService.CreateJobAsync(planId, cancellationToken: cancellationToken);
         archiveJob = await archivalService.StartJobAsync(archiveJob.Id, cancellationToken);
-        archiveJob = await archivalService.CompleteJobAsync(archiveJob.Id, cancellationToken);
+        await archivalService.ExecuteArchiveJobAsync(archiveJob.Id, cancellationToken);
+
+        archiveJob = await archivalService.GetJobStatusAsync(archiveJob.Id, cancellationToken)
+            ?? archiveJob;
 
         _logger?.LogInformation("Archive job {JobName} completed: {Items} items, {Bytes} bytes",
             job.Name, archiveJob.ProcessedItemCount, archiveJob.ProcessedBytes);
@@ -466,11 +470,34 @@ public class ArchivalJobScheduler : BackgroundService, IArchivalJobScheduler
         var recoveryService = scope.ServiceProvider.GetRequiredService<IRecoveryService>();
 
         var recoveryJob = await recoveryService.CreateRecoveryJobAsync(archiveJobId, destinationPath, cancellationToken);
+
+        if (recoveryJob.IsSimulation)
+        {
+            _logger?.LogInformation(
+                "Simulation mode: skipping actual file restore for job {JobId}. No files will be written.",
+                recoveryJob.Id);
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<EnterpriseDataManager.Core.Interfaces.Repositories.IUnitOfWork>();
+            recoveryJob.Start(0, 0);
+            recoveryJob.Complete();
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return new JobResult(0, 0);
+        }
+
         recoveryJob = await recoveryService.StartRecoveryAsync(recoveryJob.Id, cancellationToken);
+
+        var uow = scope.ServiceProvider.GetRequiredService<EnterpriseDataManager.Core.Interfaces.Repositories.IUnitOfWork>();
+        var archiveJobWithItems = await uow.ArchiveJobs.GetByIdWithItemsAsync(archiveJobId, cancellationToken);
+        var archiveItemPaths = archiveJobWithItems?.Items
+            .Where(i => i.Success == true && !string.IsNullOrEmpty(i.TargetPath))
+            .Select(i => i.TargetPath)
+            .ToList() ?? new List<string>();
+
+        await recoveryService.RecoverItemsAsync(recoveryJob.Id, archiveItemPaths, cancellationToken);
         recoveryJob = await recoveryService.CompleteRecoveryAsync(recoveryJob.Id, cancellationToken);
 
-        _logger?.LogInformation("Restore job {JobName} completed for recovery job {RecoveryJobId}", job.Name, recoveryJob.Id);
-        return new JobResult(1, 0);
+        _logger?.LogInformation("Restore job {JobName} completed for recovery job {RecoveryJobId}: {Count} items",
+            job.Name, recoveryJob.Id, archiveItemPaths.Count);
+        return new JobResult(recoveryJob.RecoveredItems, recoveryJob.RecoveredBytes);
     }
 
     private async Task<JobResult> RunVerifyIntegrityJobAsync(ScheduledJob job, CancellationToken cancellationToken)

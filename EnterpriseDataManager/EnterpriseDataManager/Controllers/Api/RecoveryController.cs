@@ -26,6 +26,7 @@ public class RecoveryController : ApiBaseController
 
     [HttpPost("{id:guid}/simulate")]
     [ProducesResponseType(typeof(ApiResponse<SimulationResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<SimulationResult>>> Simulate(
         Guid id,
@@ -35,13 +36,36 @@ public class RecoveryController : ApiBaseController
         if (source == null)
             return NotFoundResponse<SimulationResult>($"Recovery job {id} not found.");
 
+        if (string.IsNullOrWhiteSpace(source.DestinationPath))
+            return BadRequestResponse<SimulationResult>("Source recovery job has no destination path.");
+
+        var normalizedSimDest = Path.GetFullPath(source.DestinationPath.Trim());
+        var activeJobs = _db.RecoveryJobs
+            .Where(j => !j.IsDeleted && !j.IsSimulation && j.Id != source.Id)
+            .Select(j => j.DestinationPath);
+
+        foreach (var liveDest in activeJobs)
+        {
+            if (!string.IsNullOrWhiteSpace(liveDest) &&
+                string.Equals(Path.GetFullPath(liveDest.Trim()), normalizedSimDest, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "Simulation job rejected: destination path {Path} conflicts with a live recovery job.",
+                    normalizedSimDest);
+                return BadRequestResponse<SimulationResult>(
+                    "Simulation destination path conflicts with an active live recovery job destination. Use a separate path for simulations.");
+            }
+        }
+
         var simJob = RecoveryJob.Create(source.ArchiveJobId, source.DestinationPath);
         simJob.IsSimulation = true;
 
         _db.RecoveryJobs.Add(simJob);
         await _db.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Created simulation job {SimJobId} from {SourceJobId}", simJob.Id, id);
+        _logger.LogWarning(
+            "SIMULATION JOB {SimJobId} created from source {SourceJobId}. This is a dry-run only — no files will be written or restored.",
+            simJob.Id, id);
 
         var result = new SimulationResult(
             SimulationJobId: simJob.Id,

@@ -171,6 +171,9 @@ public static class DependencyInjection
         // Tape device adapter (mock by default)
         services.AddSingleton<ITapeDeviceAdapter, MockTapeAdapter>();
 
+        // Storage provider factory — creates adapters for DB-configured providers
+        services.AddSingleton<IStorageProviderFactory, StorageProviderFactory>();
+
         return services;
     }
 
@@ -202,9 +205,9 @@ public static class DependencyInjection
             new FirewallRuleService(
                 logger: sp.GetService<Microsoft.Extensions.Logging.ILogger<FirewallRuleService>>()));
 
-        // VPN config service
+        // VPN config service — only register when explicitly enabled
         var vpnSection = configuration.GetSection(VpnOptions.SectionName);
-        if (vpnSection.Exists())
+        if (vpnSection.Exists() && vpnSection.GetValue<bool>("Enabled"))
         {
             services.Configure<VpnOptions>(vpnSection);
             services.AddSingleton<VpnConfigService>();

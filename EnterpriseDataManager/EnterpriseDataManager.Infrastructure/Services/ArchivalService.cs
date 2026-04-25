@@ -13,16 +13,16 @@ public sealed class ArchivalService : IArchivalService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ArchivalService>? _logger;
-    private readonly LocalFilesystemProvider? _localProvider;
+    private readonly IStorageProviderFactory _storageFactory;
 
     public ArchivalService(
         IUnitOfWork unitOfWork,
-        ILogger<ArchivalService>? logger = null,
-        LocalFilesystemProvider? localProvider = null)
+        IStorageProviderFactory storageFactory,
+        ILogger<ArchivalService>? logger = null)
     {
         _unitOfWork = unitOfWork;
+        _storageFactory = storageFactory;
         _logger = logger;
-        _localProvider = localProvider;
     }
 
     public async Task<ArchiveJob> CreateJobAsync(Guid archivePlanId, JobPriority priority = JobPriority.Normal, CancellationToken cancellationToken = default)
@@ -43,11 +43,93 @@ public sealed class ArchivalService : IArchivalService
         var job = await _unitOfWork.ArchiveJobs.GetByIdAsync(jobId, cancellationToken)
             ?? throw EntityNotFoundException.ForArchiveJob(jobId);
 
+        var plan = await _unitOfWork.ArchivePlans.GetByIdAsync(job.ArchivePlanId, cancellationToken)
+            ?? throw EntityNotFoundException.ForArchivePlan(job.ArchivePlanId);
+
+        var sourceFiles = EnumerateSourceFiles(plan.SourcePath.Path);
+        var totalBytes = sourceFiles
+            .Where(File.Exists)
+            .Sum(f => new FileInfo(f).Length);
+
+        job.SetItemCounts(sourceFiles.Count, totalBytes);
         job.Start();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        _logger?.LogInformation("Started archive job {JobId}", jobId);
+        _logger?.LogInformation("Started archive job {JobId} with {Count} files ({Bytes} bytes)",
+            jobId, sourceFiles.Count, totalBytes);
         return job;
+    }
+
+    public async Task ExecuteArchiveJobAsync(Guid jobId, CancellationToken cancellationToken = default)
+    {
+        var job = await _unitOfWork.ArchiveJobs.GetByIdWithItemsAsync(jobId, cancellationToken)
+            ?? throw EntityNotFoundException.ForArchiveJob(jobId);
+
+        var plan = await _unitOfWork.ArchivePlans.GetByIdAsync(job.ArchivePlanId, cancellationToken)
+            ?? throw EntityNotFoundException.ForArchivePlan(job.ArchivePlanId);
+
+        if (plan.StorageProvider is null)
+        {
+            job.Fail("Archive plan has no storage provider configured");
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        var adapter = _storageFactory.CreateForProvider(plan.StorageProvider);
+        var sourceFiles = EnumerateSourceFiles(plan.SourcePath.Path);
+
+        foreach (var sourcePath in sourceFiles)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                break;
+
+            var fileName = Path.GetFileName(sourcePath);
+            var targetPath = $"{job.Id}/{fileName}";
+
+            try
+            {
+                if (!File.Exists(sourcePath))
+                {
+                    var missingItem = job.AddItem(sourcePath, targetPath, 0);
+                    job.RecordItemFailure(missingItem, $"Source file not found: {sourcePath}");
+                    _logger?.LogWarning("Source file not found during archive job {JobId}: {SourcePath}", jobId, sourcePath);
+                    continue;
+                }
+
+                var sizeBytes = new FileInfo(sourcePath).Length;
+                string hash;
+
+                await using (var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true))
+                {
+                    hash = await ComputeHashAsync(sourceStream, cancellationToken);
+                    sourceStream.Position = 0;
+                    await adapter.WriteAsync(targetPath, sourceStream, cancellationToken);
+                }
+
+                var item = job.AddItem(sourcePath, targetPath, sizeBytes);
+                job.RecordItemSuccess(item, hash);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to archive item {SourcePath} in job {JobId}", sourcePath, jobId);
+                var failedItem = job.AddItem(sourcePath, targetPath, 0);
+                job.RecordItemFailure(failedItem, ex.Message);
+            }
+        }
+
+        if (job.ProcessedItemCount > 0 || job.TotalItemCount == 0)
+        {
+            job.Complete();
+        }
+        else
+        {
+            job.Fail($"All {job.TotalItemCount} items failed to archive");
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger?.LogInformation("Archive job {JobId} finished: {Processed} processed, {Failed} failed",
+            jobId, job.ProcessedItemCount, job.FailedItemCount);
     }
 
     public async Task<ArchiveJob> CompleteJobAsync(Guid jobId, CancellationToken cancellationToken = default)
@@ -122,6 +204,9 @@ public sealed class ArchivalService : IArchivalService
         var job = await _unitOfWork.ArchiveJobs.GetByIdWithItemsAsync(jobId, cancellationToken)
             ?? throw EntityNotFoundException.ForArchiveJob(jobId);
 
+        var plan = await _unitOfWork.ArchivePlans.GetByIdAsync(job.ArchivePlanId, cancellationToken)
+            ?? throw EntityNotFoundException.ForArchivePlan(job.ArchivePlanId);
+
         try
         {
             var fileName = Path.GetFileName(sourcePath);
@@ -129,19 +214,15 @@ public sealed class ArchivalService : IArchivalService
             long sizeBytes = 0;
             string? hash = null;
 
-            if (File.Exists(sourcePath))
+            if (File.Exists(sourcePath) && plan.StorageProvider is not null)
             {
-                var fileInfo = new FileInfo(sourcePath);
-                sizeBytes = fileInfo.Length;
+                sizeBytes = new FileInfo(sourcePath).Length;
+                var adapter = _storageFactory.CreateForProvider(plan.StorageProvider);
 
-                if (_localProvider != null)
-                {
-                    await using var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read);
-                    hash = await ComputeHashAsync(sourceStream, cancellationToken);
-                    sourceStream.Position = 0;
-
-                    await _localProvider.WriteAsync(targetPath, sourceStream, cancellationToken);
-                }
+                await using var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
+                hash = await ComputeHashAsync(sourceStream, cancellationToken);
+                sourceStream.Position = 0;
+                await adapter.WriteAsync(targetPath, sourceStream, cancellationToken);
             }
 
             var item = job.AddItem(sourcePath, targetPath, sizeBytes);
@@ -173,6 +254,25 @@ public sealed class ArchivalService : IArchivalService
         }
 
         return results;
+    }
+
+    private IReadOnlyList<string> EnumerateSourceFiles(string sourcePath)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
+        {
+            _logger?.LogWarning("Source path does not exist or is empty: {SourcePath}", sourcePath);
+            return Array.Empty<string>();
+        }
+
+        try
+        {
+            return Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to enumerate source files at {SourcePath}", sourcePath);
+            return Array.Empty<string>();
+        }
     }
 
     private static async Task<string> ComputeHashAsync(Stream stream, CancellationToken cancellationToken)

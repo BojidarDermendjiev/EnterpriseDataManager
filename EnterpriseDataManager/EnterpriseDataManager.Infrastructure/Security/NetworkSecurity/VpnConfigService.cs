@@ -8,6 +8,7 @@ public class VpnOptions
 {
     public const string SectionName = "Vpn";
 
+    public bool Enabled { get; set; } = false;
     public string ServerAddress { get; set; } = string.Empty;
     public int ServerPort { get; set; } = 1194;
     public VpnProtocol Protocol { get; set; } = VpnProtocol.OpenVPN;
@@ -31,6 +32,17 @@ public class VpnConfigService
 
     public Task<VpnConnectionResult> ConnectAsync(VpnConnectionRequest request, CancellationToken cancellationToken = default)
     {
+        if (!_options.Enabled)
+        {
+            return Task.FromResult(new VpnConnectionResult(
+                Success: false,
+                ConnectionId: null,
+                AssignedIp: null,
+                ServerAddress: null,
+                Protocol: _options.Protocol,
+                ErrorMessage: "VPN feature is disabled. Set Vpn:Enabled=true to enable."));
+        }
+
         var connectionId = Guid.NewGuid().ToString();
         var connection = new VpnConnection(
             ConnectionId: connectionId,
@@ -107,6 +119,9 @@ public class VpnConfigService
 
     public Task<VpnConfiguration> GenerateClientConfigAsync(string userId, CancellationToken cancellationToken = default)
     {
+        if (!_options.Enabled)
+            throw new InvalidOperationException("VPN feature is disabled.");
+
         var config = new VpnConfiguration(
             ServerAddress: _options.ServerAddress,
             ServerPort: _options.ServerPort,

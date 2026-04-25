@@ -13,6 +13,7 @@ public interface IArchivalService
     Task<ArchiveJob?> GetJobStatusAsync(Guid jobId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ArchiveJob>> GetRunningJobsAsync(CancellationToken cancellationToken = default);
     Task ProcessScheduledJobsAsync(CancellationToken cancellationToken = default);
+    Task ExecuteArchiveJobAsync(Guid jobId, CancellationToken cancellationToken = default);
     Task<ArchiveItemResult> ArchiveItemAsync(Guid jobId, string sourcePath, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ArchiveItemResult>> ArchiveItemsAsync(Guid jobId, IEnumerable<string> sourcePaths, CancellationToken cancellationToken = default);
 }

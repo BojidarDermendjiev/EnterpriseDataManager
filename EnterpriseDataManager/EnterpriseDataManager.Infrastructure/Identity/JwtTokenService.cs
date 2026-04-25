@@ -18,15 +18,22 @@ public class JwtTokenService : IJwtTokenService
 
     public string GenerateToken(string userId, string email, IEnumerable<string> roles)
     {
+        return GenerateTokenWithJti(userId, email, roles).Token;
+    }
+
+    public TokenWithJti GenerateTokenWithJti(string userId, string email, IEnumerable<string> roles)
+    {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var now = DateTime.UtcNow;
+        var jti = Guid.NewGuid().ToString();
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId),
             new(JwtRegisteredClaimNames.Email, email),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti, jti),
             new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
 
@@ -43,6 +50,6 @@ public class JwtTokenService : IJwtTokenService
             expires: now.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new TokenWithJti(new JwtSecurityTokenHandler().WriteToken(token), jti);
     }
 }

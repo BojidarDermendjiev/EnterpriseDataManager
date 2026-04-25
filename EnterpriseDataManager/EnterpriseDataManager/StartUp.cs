@@ -69,6 +69,17 @@ public static class Startup
 
         // JWT Bearer — additional scheme for API endpoints; cookie auth for MVC remains the default
         var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+        var jwtSecret = jwtOptions.Secret;
+
+        if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(jwtSecret))
+            throw new InvalidOperationException("Jwt:Secret is not configured for production. Set the Jwt__Secret environment variable.");
+
+        if (!builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(jwtSecret))
+        {
+            var startupLogger = LoggerFactory.Create(lb => lb.AddConsole()).CreateLogger("Startup");
+            startupLogger.LogWarning("Jwt:Secret is empty. Set Jwt__Secret in environment or appsettings before deploying.");
+        }
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = "Identity.Application";
@@ -84,7 +95,7 @@ public static class Startup
                 ValidAudience = jwtOptions.Audience,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(string.IsNullOrWhiteSpace(jwtSecret) ? "placeholder-key-not-for-production-use" : jwtSecret))
             };
         });
 
@@ -282,6 +293,17 @@ public static class Startup
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"));
 
         var app = builder.Build();
+
+        if (app.Environment.IsProduction())
+        {
+            var appLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+            if (allowedOrigins.Any(o => o.Contains("localhost", StringComparison.OrdinalIgnoreCase)))
+            {
+                appLogger.LogCritical(
+                    "CORS configuration contains localhost origins in production: {Origins}. Remove localhost from Cors:AllowedOrigins.",
+                    string.Join(", ", allowedOrigins.Where(o => o.Contains("localhost", StringComparison.OrdinalIgnoreCase))));
+            }
+        }
 
         app.UseGlobalExceptionHandler();
 

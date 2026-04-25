@@ -23,6 +23,7 @@ public class EnterpriseDataManagerDbContext : IdentityDbContext
     public DbSet<AuditRecord> AuditRecords => Set<AuditRecord>();
     public DbSet<ScheduledJobRecord> ScheduledJobRecords => Set<ScheduledJobRecord>();
     public DbSet<FilePermission> FilePermissions => Set<FilePermission>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

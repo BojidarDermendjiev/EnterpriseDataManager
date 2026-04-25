@@ -43,6 +43,12 @@ public class ArchiveItem : BaseEntity
         ProcessedAt = DateTimeOffset.UtcNow;
     }
 
+    public void UpdateTargetPath(string newTargetPath)
+    {
+        Guard.AgainstNullOrWhiteSpace(newTargetPath, TargetPathCannotBeEmpty);
+        TargetPath = newTargetPath.Trim();
+    }
+
     internal void MarkFailed(string error)
     {
         Guard.AgainstNullOrWhiteSpace(error, ErrorMessageCannotBeEmpty);

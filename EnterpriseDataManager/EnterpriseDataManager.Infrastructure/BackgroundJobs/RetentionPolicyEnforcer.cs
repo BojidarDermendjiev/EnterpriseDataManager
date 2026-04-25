@@ -17,6 +17,7 @@ public class RetentionPolicyEnforcerOptions
     public int BatchSize { get; set; } = 100;
     public bool EnableSoftDelete { get; set; } = true;
     public TimeSpan SoftDeleteGracePeriod { get; set; } = TimeSpan.FromDays(30);
+    public string ColdStoragePath { get; set; } = "cold-storage";
     public List<RetentionPolicyConfiguration> Policies { get; set; } = new();
 }
 
@@ -494,11 +495,45 @@ public class RetentionPolicyEnforcer : BackgroundService, IRetentionPolicyEnforc
         }
     }
 
-    private Task ArchiveItemAsync(RetentionItem item, CancellationToken cancellationToken)
+    private async Task ArchiveItemAsync(RetentionItem item, CancellationToken cancellationToken)
     {
-        _logger?.LogWarning(
-            "Cold-storage archival for item {Path} is not yet implemented — skipping", item.Path);
-        return Task.CompletedTask;
+        var archiveDate = DateTimeOffset.UtcNow;
+        var fileName = Path.GetFileName(item.Path);
+        var coldStorageDir = Path.Combine(
+            _options.ColdStoragePath,
+            "archive",
+            archiveDate.ToString("yyyy-MM"));
+
+        Directory.CreateDirectory(coldStorageDir);
+
+        var destinationPath = Path.Combine(coldStorageDir, fileName);
+
+        if (File.Exists(item.Path))
+        {
+            try
+            {
+                File.Move(item.Path, destinationPath, overwrite: true);
+            }
+            catch (IOException)
+            {
+                File.Copy(item.Path, destinationPath, overwrite: true);
+                File.Delete(item.Path);
+            }
+        }
+
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+        var archiveItem = await db.ArchiveItems
+            .FirstOrDefaultAsync(ai => ai.TargetPath == item.Path, cancellationToken);
+
+        if (archiveItem is not null)
+        {
+            archiveItem.UpdateTargetPath(destinationPath);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        _logger?.LogInformation("Archived item {Path} to cold storage at {Destination}", item.Path, destinationPath);
     }
 }
 

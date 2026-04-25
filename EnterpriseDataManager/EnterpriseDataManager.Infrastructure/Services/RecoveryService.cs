@@ -7,21 +7,22 @@ using EnterpriseDataManager.Core.Interfaces.Repositories;
 using EnterpriseDataManager.Core.Interfaces.Services;
 using EnterpriseDataManager.Infrastructure.Storage;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 
 public sealed class RecoveryService : IRecoveryService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RecoveryService>? _logger;
-    private readonly LocalFilesystemProvider? _localProvider;
+    private readonly IStorageProviderFactory _storageFactory;
 
     public RecoveryService(
         IUnitOfWork unitOfWork,
-        ILogger<RecoveryService>? logger = null,
-        LocalFilesystemProvider? localProvider = null)
+        IStorageProviderFactory storageFactory,
+        ILogger<RecoveryService>? logger = null)
     {
         _unitOfWork = unitOfWork;
+        _storageFactory = storageFactory;
         _logger = logger;
-        _localProvider = localProvider;
     }
 
     public async Task<RecoveryJob> CreateRecoveryJobAsync(Guid archiveJobId, string destinationPath, CancellationToken cancellationToken = default)
@@ -110,36 +111,61 @@ public sealed class RecoveryService : IRecoveryService
 
         try
         {
+            var archiveJob = await _unitOfWork.ArchiveJobs.GetByIdWithItemsAsync(job.ArchiveJobId, cancellationToken)
+                ?? throw EntityNotFoundException.ForArchiveJob(job.ArchiveJobId);
+
+            var plan = await _unitOfWork.ArchivePlans.GetByIdAsync(archiveJob.ArchivePlanId, cancellationToken)
+                ?? throw EntityNotFoundException.ForArchivePlan(archiveJob.ArchivePlanId);
+
+            if (plan.StorageProvider is null)
+                throw new InvalidOperationException("Archive plan has no storage provider configured");
+
+            var adapter = _storageFactory.CreateForProvider(plan.StorageProvider);
+
             var fileName = Path.GetFileName(archiveItemPath);
-            var destinationPath = Path.Combine(job.DestinationPath, fileName);
-            long sizeBytes = 0;
+            var destinationFilePath = Path.Combine(job.DestinationPath, fileName);
+
+            var directory = Path.GetDirectoryName(destinationFilePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            long sizeBytes;
+            using (var sourceStream = await adapter.ReadAsync(archiveItemPath, cancellationToken))
+            {
+                sizeBytes = sourceStream.Length;
+                await using var destStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
+                await sourceStream.CopyToAsync(destStream, cancellationToken);
+            }
+
+            var archiveItem = archiveJob.Items.FirstOrDefault(i => i.TargetPath == archiveItemPath);
             bool integrityVerified = false;
 
-            if (_localProvider != null)
+            if (archiveItem?.Hash is not null)
             {
-                using var sourceStream = await _localProvider.ReadAsync(archiveItemPath, cancellationToken);
-                sizeBytes = sourceStream.Length;
-
-                var directory = Path.GetDirectoryName(destinationPath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                string writtenHash;
+                await using (var verifyStream = new FileStream(destinationFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true))
                 {
-                    Directory.CreateDirectory(directory);
+                    var hashBytes = await SHA256.HashDataAsync(verifyStream, cancellationToken);
+                    writtenHash = Convert.ToHexString(hashBytes).ToLowerInvariant();
                 }
 
-                await using var destStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
-                await sourceStream.CopyToAsync(destStream, cancellationToken);
+                integrityVerified = string.Equals(writtenHash, archiveItem.Hash, StringComparison.OrdinalIgnoreCase);
 
-                integrityVerified = true;
+                if (!integrityVerified)
+                {
+                    _logger?.LogWarning("Hash mismatch for recovered item {ArchiveItemPath} in job {RecoveryJobId}",
+                        archiveItemPath, recoveryJobId);
+                }
             }
 
             job.RecordProgress(1, sizeBytes);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new RecoveryItemResult(true, archiveItemPath, destinationPath, sizeBytes, integrityVerified, null);
+            return new RecoveryItemResult(true, archiveItemPath, destinationFilePath, sizeBytes, integrityVerified, null);
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Failed to recover item {ArchiveItemPath}", archiveItemPath);
+            _logger?.LogError(ex, "Failed to recover item {ArchiveItemPath} in job {RecoveryJobId}", archiveItemPath, recoveryJobId);
             return new RecoveryItemResult(false, archiveItemPath, null, null, null, ex.Message);
         }
     }
@@ -162,22 +188,25 @@ public sealed class RecoveryService : IRecoveryService
         var archiveJob = await _unitOfWork.ArchiveJobs.GetByIdWithItemsAsync(archiveJobId, cancellationToken)
             ?? throw EntityNotFoundException.ForArchiveJob(archiveJobId);
 
-        if (_localProvider == null)
+        var plan = await _unitOfWork.ArchivePlans.GetByIdAsync(archiveJob.ArchivePlanId, cancellationToken)
+            ?? throw EntityNotFoundException.ForArchivePlan(archiveJob.ArchivePlanId);
+
+        if (plan.StorageProvider is null)
         {
-            _logger?.LogWarning("Cannot validate integrity - no storage provider available");
+            _logger?.LogWarning("Cannot validate integrity — archive plan has no storage provider");
             return false;
         }
+
+        var adapter = _storageFactory.CreateForProvider(plan.StorageProvider);
 
         foreach (var item in archiveJob.Items)
         {
             if (string.IsNullOrEmpty(item.TargetPath) || string.IsNullOrEmpty(item.Hash))
-            {
                 continue;
-            }
 
             try
             {
-                var storedHash = await _localProvider.CalculateHashAsync(item.TargetPath, cancellationToken);
+                var storedHash = await adapter.CalculateHashAsync(item.TargetPath, cancellationToken);
                 if (!string.Equals(storedHash, item.Hash, StringComparison.OrdinalIgnoreCase))
                 {
                     _logger?.LogWarning("Integrity check failed for item {ItemId}: hash mismatch", item.Id);
