@@ -41,6 +41,10 @@ jobs:
   sast:
     runs-on: ubuntu-latest
     needs: build-and-test
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
       - name: Initialize CodeQL
