@@ -1,6 +1,7 @@
 namespace EnterpriseDataManager.Controllers.Api;
 
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 /// Base controller for all API controllers with common functionality.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Produces("application/json")]
 [EnableRateLimiting("api")]
 public abstract class ApiBaseController : ControllerBase

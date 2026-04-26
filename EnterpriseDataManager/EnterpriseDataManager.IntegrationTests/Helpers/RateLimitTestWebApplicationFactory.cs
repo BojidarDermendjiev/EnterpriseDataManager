@@ -39,30 +39,41 @@ public class RateLimitTestWebApplicationFactory : TestWebApplicationFactory
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                options.AddFixedWindowLimiter("api", limiterOptions =>
+                // Named limiters are partitioned by X-Forwarded-For so that each test,
+                // which injects its own unique header, operates in an isolated bucket.
+                options.AddPolicy<string>("api", httpContext =>
                 {
-                    limiterOptions.PermitLimit = SmallApiLimit;
-                    limiterOptions.Window = TimeSpan.FromSeconds(60);
-                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                    limiterOptions.QueueLimit = 0;
+                    var key = GetPartitionKey(httpContext);
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: $"api:{key}",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = SmallApiLimit,
+                            Window = TimeSpan.FromSeconds(60),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
                 });
 
-                options.AddFixedWindowLimiter("auth", limiterOptions =>
+                options.AddPolicy<string>("auth", httpContext =>
                 {
-                    limiterOptions.PermitLimit = SmallAuthLimit;
-                    limiterOptions.Window = TimeSpan.FromSeconds(60);
-                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                    limiterOptions.QueueLimit = 0;
+                    var key = GetPartitionKey(httpContext);
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: $"auth:{key}",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = SmallAuthLimit,
+                            Window = TimeSpan.FromSeconds(60),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
                 });
 
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
                 {
-                    var partitionKey = context.User?.Identity?.Name
-                        ?? context.Connection.RemoteIpAddress?.ToString()
-                        ?? "anonymous";
-
+                    var key = GetPartitionKey(context);
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: partitionKey,
+                        partitionKey: key,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
                             AutoReplenishment = true,
@@ -93,4 +104,11 @@ public class RateLimitTestWebApplicationFactory : TestWebApplicationFactory
             });
         });
     }
+
+    // X-Forwarded-For is checked first so each test can inject a unique IP and get its own bucket.
+    private static string GetPartitionKey(HttpContext context) =>
+        context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+            ?? context.User?.Identity?.Name
+            ?? context.Connection.RemoteIpAddress?.ToString()
+            ?? "anonymous";
 }

@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using EnterpriseDataManager.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +73,25 @@ public class TestWebApplicationFactory : WebApplicationFactory<WebApplicationEnt
 
             // Remove all background IHostedService registrations so tests are fast and isolated
             services.RemoveAll<IHostedService>();
+
+            // Override JWT validation parameters AFTER the app has registered its own JwtBearer
+            // config — PostConfigure runs last and wins over any Configure call.
+            // ClockSkew = Zero ensures tokens expiring in the past are rejected without the
+            // default 5-minute grace period, which is required by the expiry-token security tests.
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = TestIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = TestAudience,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TestJwtSecret)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
         });
     }
 
@@ -131,12 +151,13 @@ public class TestWebApplicationFactory : WebApplicationFactory<WebApplicationEnt
             new(ClaimTypes.Role, role)
         };
 
+        var effectiveExpires = expires ?? DateTime.UtcNow.AddHours(1);
         var token = new JwtSecurityToken(
             issuer: issuer ?? TestIssuer,
             audience: audience ?? TestAudience,
             claims: claims,
-            notBefore: DateTime.UtcNow.AddSeconds(-1),
-            expires: expires ?? DateTime.UtcNow.AddHours(1),
+            notBefore: effectiveExpires.AddHours(-1),
+            expires: effectiveExpires,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
