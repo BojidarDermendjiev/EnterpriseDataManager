@@ -273,6 +273,67 @@ public sealed class ArchivePlansController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RunNow(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var plan = await _archivePlanRepository.GetByIdAsync(id, cancellationToken);
+            if (plan == null) return NotFound();
+
+            TempData["Success"] = $"Archive job queued for '{plan.Name}'.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Export(
+        string? search = null,
+        string? status = null,
+        string? securityLevel = null,
+        CancellationToken cancellationToken = default)
+    {
+        var plans = await _archivePlanRepository.GetAllAsync(cancellationToken);
+
+        if (!string.IsNullOrEmpty(search))
+            plans = plans.Where(p => p.Name.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            var isActive = status.Equals("active", StringComparison.OrdinalIgnoreCase);
+            plans = plans.Where(p => p.IsActive == isActive).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(securityLevel) && Enum.TryParse<SecurityLevel>(securityLevel, true, out var level))
+            plans = plans.Where(p => p.SecurityLevel == level).ToList();
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Name,Source Path,Status,Security Level,Schedule,Storage Provider,Last Run,Next Run");
+
+        foreach (var plan in plans.OrderByDescending(p => p.CreatedAt))
+        {
+            static string Csv(string? v) => v is null ? "" : $"\"{v.Replace("\"", "\"\"")}\"";
+            sb.AppendLine(string.Join(",",
+                Csv(plan.Name),
+                Csv(plan.SourcePath),
+                plan.IsActive ? "Active" : "Inactive",
+                plan.SecurityLevel.ToString(),
+                Csv(plan.Schedule?.Description ?? plan.Schedule?.Expression),
+                Csv(plan.StorageProvider?.Name),
+                plan.LastRunAt.HasValue ? plan.LastRunAt.Value.LocalDateTime.ToString("yyyy-MM-dd HH:mm") : "",
+                plan.NextRunAt.HasValue ? plan.NextRunAt.Value.LocalDateTime.ToString("yyyy-MM-dd HH:mm") : ""
+            ));
+        }
+
+        var fileName = $"archive-plans-{DateTime.UtcNow:yyyy-MM-dd}.csv";
+        return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", fileName);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Deactivate(Guid id, CancellationToken cancellationToken = default)
     {
         try

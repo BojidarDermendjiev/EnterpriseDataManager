@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
-public class TestWebApplicationFactory : WebApplicationFactory<WebApplicationEntryPoint>, IDisposable
+public class TestWebApplicationFactory : WebApplicationFactory<Startup>, IDisposable
 {
     private const string TestJwtSecret = "test-secret-key-for-integration-tests-32c";
     private const string TestIssuer = "EnterpriseDataManager";

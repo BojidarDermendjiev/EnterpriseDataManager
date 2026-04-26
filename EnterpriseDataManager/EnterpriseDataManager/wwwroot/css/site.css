@@ -294,12 +294,18 @@ body {
 
 .header-btn .notification-badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 8px;
-    height: 8px;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
     background: var(--danger-color);
-    border-radius: 50%;
+    color: white;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
 }
 
 .user-dropdown {
@@ -502,11 +508,12 @@ body {
 
 .btn-primary {
     background: var(--primary-color);
-    color: white;
+    color: #fff;
 }
 
 .btn-primary:hover {
     background: var(--primary-dark);
+    color: #fff;
 }
 
 .btn-secondary {
@@ -516,25 +523,28 @@ body {
 }
 
 .btn-secondary:hover {
-    background: var(--border-light);
+    background: var(--border-color);
+    color: var(--text-primary);
 }
 
 .btn-success {
     background: var(--success-color);
-    color: white;
+    color: #fff;
 }
 
 .btn-success:hover {
     background: #059669;
+    color: #fff;
 }
 
 .btn-danger {
     background: var(--danger-color);
-    color: white;
+    color: #fff;
 }
 
 .btn-danger:hover {
     background: #dc2626;
+    color: #fff;
 }
 
 .btn-outline {
@@ -543,8 +553,17 @@ body {
     color: var(--text-primary);
 }
 
-.btn-outline:hover {
-    background: var(--bg-primary);
+.btn-outline:hover:not(:disabled) {
+    background: #e8edf5;
+    border-color: var(--primary-color);
+    color: var(--primary-dark);
+}
+
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .btn-outline-primary {
@@ -1406,3 +1425,18 @@ textarea.form-control {
 }
 .tab-content > .tab-pane { display: none; }
 .tab-content > .tab-pane.active { display: block; }
+
+.fw-medium { font-weight: 500; }
+
+/* Notification dropdown items */
+.notification-item:hover {
+    background: var(--bg-primary);
+}
+
+/* Manage account nav (inside cards / white area) */
+.manage-nav-container {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+}

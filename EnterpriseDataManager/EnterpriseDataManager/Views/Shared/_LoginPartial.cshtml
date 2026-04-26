@@ -8,15 +8,17 @@
         <div class="user-avatar">
             @{
                 var userName = User.Identity?.Name ?? "U";
-                var initials = userName.Length >= 2
-                    ? userName.Substring(0, 2).ToUpper()
-                    : userName.ToUpper();
+                var initials = userName.Contains('@')
+                    ? userName.Substring(0, Math.Min(2, userName.IndexOf('@'))).ToUpper()
+                    : (userName.Length >= 2 ? userName.Substring(0, 2).ToUpper() : userName.ToUpper());
             }
             @initials
         </div>
         <div class="user-info">
-            <span class="user-name">@User.Identity?.Name</span>
-            <span class="user-role">Administrator</span>
+            @if (User.IsInRole("Admin"))
+            {
+                <span class="user-role">Administrator</span>
+            }
         </div>
         <div class="dropdown">
             <button class="btn btn-sm btn-icon btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; margin-left: 0.5rem;">

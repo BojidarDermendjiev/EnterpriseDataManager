@@ -54,17 +54,5 @@
     <Folder Include="Controllers\Api\" />
   </ItemGroup>
 
-  <!-- Fix resource logical names for localization -->
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\SharedResource.resx">
-      <LogicalName>EnterpriseDataManager.SharedResource.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\SharedResource.en.resx">
-      <LogicalName>EnterpriseDataManager.SharedResource.en.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\SharedResource.bg.resx">
-      <LogicalName>EnterpriseDataManager.SharedResource.bg.resources</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
 
 </Project>

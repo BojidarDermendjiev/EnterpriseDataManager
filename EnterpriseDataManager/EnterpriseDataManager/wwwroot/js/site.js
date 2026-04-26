@@ -97,7 +97,7 @@
 
     // Tooltips initialization (if Bootstrap is loaded)
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        const tooltipTriggerList = document.querySelectorAll('[title]');
+        const tooltipTriggerList = document.querySelectorAll('[title]:not([data-bs-toggle])');
         tooltipTriggerList.forEach(function (tooltipTriggerEl) {
             new bootstrap.Tooltip(tooltipTriggerEl, {
                 trigger: 'hover',
