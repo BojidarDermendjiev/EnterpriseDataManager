@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS migrate
+WORKDIR /src
+
+# Copy solution and project files first for layer caching
+COPY ["EnterpriseDataManager/EnterPriceDataManager.csproj",                "EnterpriseDataManager/"]
+COPY ["EnterpriseDataManager.Application/EnterpriseDataManager.Application.csproj", "EnterpriseDataManager.Application/"]
+COPY ["EnterpriseDataManager.Common/EnterpriseDataManager.Common.csproj",   "EnterpriseDataManager.Common/"]
+COPY ["EnterpriseDataManager.Core/EnterpriseDataManager.Core.csproj",       "EnterpriseDataManager.Core/"]
+COPY ["EnterpriseDataManager.Data/EnterpriseDataManager.Data.csproj",       "EnterpriseDataManager.Data/"]
+COPY ["EnterpriseDataManager.Infrastructure/EnterpriseDataManager.Infrastructure.csproj", "EnterpriseDataManager.Infrastructure/"]
+
+RUN dotnet restore "EnterpriseDataManager/EnterPriceDataManager.csproj"
+
+COPY . .
+
+RUN dotnet tool install --global dotnet-ef --version 8.0.* && \
+    dotnet build "EnterpriseDataManager/EnterPriceDataManager.csproj" -c Release --no-restore
+
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+ENTRYPOINT ["dotnet", "ef", "database", "update", \
+            "--project",         "EnterpriseDataManager.Data", \
+            "--startup-project", "EnterpriseDataManager/EnterPriceDataManager.csproj", \
+            "--no-build"]

@@ -1,38 +1,124 @@
 services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: edm
-      POSTGRES_USER: edm_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB:       ${POSTGRES_DB:-edm}
+      POSTGRES_USER:     ${POSTGRES_USER:-edm_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"        # bind to loopback only — not exposed publicly
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-edm_user} -d ${POSTGRES_DB:-edm}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  # Run migrations: docker compose run --rm web dotnet ef database update --project EnterpriseDataManager.Data
+  # ── Migration runner (docker compose run --rm migrate) ───────────────────────
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    environment:
+      ConnectionStrings__DefaultConnection: >-
+        Host=db;Port=5432;Database=${POSTGRES_DB:-edm};
+        Username=${POSTGRES_USER:-edm_user};Password=${POSTGRES_PASSWORD};SslMode=Prefer;
+      Database__Provider: PostgreSQL
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - migrate
+
+  # ── ASP.NET Core application ─────────────────────────────────────────────────
   web:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     environment:
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=edm;Username=edm_user;Password=${POSTGRES_PASSWORD:-changeme}"
-      Jwt__Secret: ${JWT_SECRET:-replace-with-32-char-secret-here}
-      ASPNETCORE_ENVIRONMENT: Production
-    ports:
-      - "8080:8080"
+      ASPNETCORE_ENVIRONMENT:          Production
+      ASPNETCORE_URLS:                 http://+:8080
+      Database__Provider:              PostgreSQL
+      ConnectionStrings__DefaultConnection: >-
+        Host=db;Port=5432;Database=${POSTGRES_DB:-edm};
+        Username=${POSTGRES_USER:-edm_user};Password=${POSTGRES_PASSWORD};SslMode=Prefer;
+      Jwt__Secret:                     ${JWT_SECRET:?JWT_SECRET is required}
+      Jwt__Issuer:                     ${JWT_ISSUER:-EnterpriseDataManager}
+      Jwt__Audience:                   ${JWT_AUDIENCE:-EnterpriseDataManager}
+      Jwt__ExpiryMinutes:              ${JWT_EXPIRY_MINUTES:-30}
+      WebhookSettings__Secret:         ${WEBHOOK_SECRET:-}
+      Cors__AllowedOrigins__0:         https://${DOMAIN:?DOMAIN is required}
+      Seq__ServerUrl:                  ${SEQ_SERVER_URL:-}
+      Seq__ApiKey:                     ${SEQ_API_KEY:-}
+      Notification__EnableEmailNotifications:   ${ENABLE_EMAIL:-false}
+      Notification__EnableWebhookNotifications: ${ENABLE_WEBHOOKS:-false}
+      HealthCheckMonitor__EnableAlerts: "true"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "127.0.0.1:8080:8080"          # internal only; Nginx is the public gateway
 
+  # ── Nginx reverse proxy + TLS ─────────────────────────────────────────────────
   nginx:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    # envsubst replaces ${DOMAIN} in nginx.conf before nginx starts
+    command: >
+      /bin/sh -c "
+        envsubst '$$DOMAIN' < /etc/nginx/templates/nginx.conf.template
+          > /etc/nginx/conf.d/default.conf &&
+        nginx -t &&
+        nginx -g 'daemon off;'
+      "
+    environment:
+      DOMAIN: ${DOMAIN}
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ${TLS_CERT_DIR:-./certs}:/etc/nginx/ssl:ro
+      - certbot_webroot:/var/www/certbot:ro
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      - web
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t 2>/dev/null && wget -qO- http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Certbot — Let's Encrypt certificate renewal (optional) ───────────────────
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ${TLS_CERT_DIR:-./certs}:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: >
+      /bin/sh -c "
+        trap exit TERM;
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --quiet;
+          sleep 12h & wait $${!};
+        done
+      "
+    profiles:
+      - letsencrypt
 
 volumes:
   pgdata:
+  certbot_webroot:
