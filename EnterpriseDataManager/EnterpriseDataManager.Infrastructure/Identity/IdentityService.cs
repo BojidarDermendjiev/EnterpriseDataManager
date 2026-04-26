@@ -260,7 +260,7 @@ public class IdentityService : IIdentityService
                 return Task.FromResult(AuthenticationResult.Failure("Token has been revoked", AuthenticationErrorCode.TokenInvalid));
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenHandler = new JwtSecurityTokenHandler { MapInboundClaims = true };
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
