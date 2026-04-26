@@ -281,6 +281,13 @@ public static class Startup
             options.EnableForHttps = true;
         });
 
+        builder.Services.AddHsts(options =>
+        {
+            options.MaxAge = TimeSpan.FromSeconds(31536000);
+            options.IncludeSubDomains = true;
+            options.Preload = true;
+        });
+
         // Logging
         builder.Host.UseSerilog((ctx, lc) =>
         {
@@ -311,6 +318,26 @@ public static class Startup
                 appLogger.LogCritical(
                     "CORS configuration contains localhost origins in production: {Origins}. Remove localhost from Cors:AllowedOrigins.",
                     string.Join(", ", allowedOrigins.Where(o => o.Contains("localhost", StringComparison.OrdinalIgnoreCase))));
+            }
+        }
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+            var pending = db.Database.GetPendingMigrations().ToList();
+            if (pending.Count > 0)
+            {
+                var startupLogger = scope.ServiceProvider
+                    .GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("Startup");
+                startupLogger.LogCritical(
+                    "{Count} pending database migration(s) detected at startup: {Migrations}. Run 'dotnet ef database update' or the migrate container before serving traffic.",
+                    pending.Count,
+                    string.Join(", ", pending));
+
+                if (app.Environment.IsProduction())
+                    throw new InvalidOperationException(
+                        $"Cannot start in Production with {pending.Count} pending migration(s): {string.Join(", ", pending)}");
             }
         }
 
