@@ -282,15 +282,24 @@ public static class Startup
         });
 
         // Logging
-        builder.Host.UseSerilog((ctx, lc) => lc
-            .ReadFrom.Configuration(ctx.Configuration)
-            .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.File(
-                path: "logs/edm-.log",
-                rollingInterval: Serilog.RollingInterval.Day,
-                retainedFileCountLimit: 30,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"));
+        builder.Host.UseSerilog((ctx, lc) =>
+        {
+            lc.ReadFrom.Configuration(ctx.Configuration)
+              .Enrich.FromLogContext()
+              .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+              .WriteTo.File(
+                  path: "logs/edm-.log",
+                  rollingInterval: Serilog.RollingInterval.Day,
+                  retainedFileCountLimit: 30,
+                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+
+            var seqUrl = ctx.Configuration["Seq:ServerUrl"];
+            if (!string.IsNullOrWhiteSpace(seqUrl))
+            {
+                var apiKey = ctx.Configuration["Seq:ApiKey"];
+                lc.WriteTo.Seq(seqUrl, apiKey: string.IsNullOrWhiteSpace(apiKey) ? null : apiKey);
+            }
+        });
 
         var app = builder.Build();
 

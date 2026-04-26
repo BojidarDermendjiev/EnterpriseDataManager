@@ -51,6 +51,13 @@
                     </svg>
                     Audit Log (Excel)
                 </button>
+                <button type="button" class="btn btn-outline" onclick="downloadReport('audit-log/pdf')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Audit Log (PDF)
+                </button>
             </div>
         </div>
     </div>
@@ -236,7 +243,7 @@
     function downloadReport(type) {
         var from = document.getElementById('reportFrom').value;
         var to = document.getElementById('reportTo').value;
-        var url = '/api/reports/' + type + '?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to + 'T23:59:59Z');
+        var url = '/api/v1/reports/' + type + '?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to + 'T23:59:59Z');
         window.location.href = url;
     }
 </script>

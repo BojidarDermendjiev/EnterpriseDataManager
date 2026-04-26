@@ -3,10 +3,13 @@ namespace EnterpriseDataManager.Controllers.Api;
 using Asp.Versioning;
 using EnterpriseDataManager.Core.Entities;
 using EnterpriseDataManager.Core.Interfaces.Services;
+using EnterpriseDataManager.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/share")]
+[Authorize]
 public class ShareController : ApiBaseController
 {
     private readonly IShareService _shareService;
@@ -19,8 +22,10 @@ public class ShareController : ApiBaseController
     }
 
     [HttpPost("{archiveItemId}/grant")]
+    [RequireFilePermission(PermissionLevel.Admin)]
     [ProducesResponseType(typeof(ApiResponse<FilePermission>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<FilePermission>>> Grant(
         string archiveItemId,
         [FromBody] GrantPermissionRequest request,
@@ -40,7 +45,9 @@ public class ShareController : ApiBaseController
     }
 
     [HttpDelete("{archiveItemId}/revoke/{userId}")]
+    [RequireFilePermission(PermissionLevel.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<object>>> Revoke(
         string archiveItemId,
         string userId,
@@ -51,7 +58,9 @@ public class ShareController : ApiBaseController
     }
 
     [HttpGet("{archiveItemId}/permissions")]
+    [RequireFilePermission(PermissionLevel.Admin)]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FilePermission>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<FilePermission>>>> GetPermissions(
         string archiveItemId,
         CancellationToken cancellationToken = default)
@@ -61,8 +70,10 @@ public class ShareController : ApiBaseController
     }
 
     [HttpPost("{archiveItemId}/signed-url")]
+    [RequireFilePermission(PermissionLevel.Read)]
     [ProducesResponseType(typeof(ApiResponse<SignedUrlResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<SignedUrlResponse>>> GenerateSignedUrl(
         string archiveItemId,
         [FromBody] SignedUrlRequest request,

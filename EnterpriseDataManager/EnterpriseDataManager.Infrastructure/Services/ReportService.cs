@@ -204,6 +204,93 @@ public sealed class ReportService : IReportService
         return ms.ToArray();
     }
 
+    public async Task<byte[]> GenerateAuditLogPdfAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken ct = default)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EnterpriseDataManagerDbContext>();
+
+        var records = await db.AuditRecords
+            .AsNoTracking()
+            .Where(r => r.Timestamp >= from && r.Timestamp <= to)
+            .OrderByDescending(r => r.Timestamp)
+            .Take(500)
+            .ToListAsync(ct);
+
+        var document = new PdfDocument();
+        document.Info.Title = "Audit Log Report";
+
+        var page = document.AddPage();
+        page.Orientation = PdfSharpCore.PageOrientation.Landscape;
+        var gfx = XGraphics.FromPdfPage(page);
+
+        var titleFont = new XFont("Arial", 14, XFontStyle.Bold);
+        var headerFont = new XFont("Arial", 9, XFontStyle.Bold);
+        var cellFont = new XFont("Arial", 7, XFontStyle.Regular);
+
+        gfx.DrawString($"Audit Log Report ({from:yyyy-MM-dd} to {to:yyyy-MM-dd})", titleFont, XBrushes.Black, new XRect(20, 20, page.Width - 40, 20), XStringFormats.TopLeft);
+        gfx.DrawString($"Generated: {DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm} UTC | {records.Count} records", cellFont, XBrushes.Gray, new XRect(20, 38, page.Width - 40, 14), XStringFormats.TopLeft);
+
+        double[] colWidths = { 130, 110, 110, 90, 110, 45, 105, 95 };
+        string[] headers = { "Timestamp", "Actor", "Action", "Resource Type", "Resource ID", "Success", "Details", "IP Address" };
+
+        double tableLeft = 20;
+        double rowHeight = 13;
+        double y = 58;
+
+        gfx.DrawRectangle(XBrushes.DarkSlateGray, new XRect(tableLeft, y, colWidths.Sum(), rowHeight));
+        double x = tableLeft;
+        for (int i = 0; i < headers.Length; i++)
+        {
+            gfx.DrawString(headers[i], headerFont, XBrushes.White, new XRect(x + 2, y + 2, colWidths[i] - 4, rowHeight - 2), XStringFormats.TopLeft);
+            x += colWidths[i];
+        }
+        y += rowHeight;
+
+        for (int rowIdx = 0; rowIdx < records.Count; rowIdx++)
+        {
+            if (y + rowHeight > page.Height - 20)
+            {
+                page = document.AddPage();
+                page.Orientation = PdfSharpCore.PageOrientation.Landscape;
+                gfx = XGraphics.FromPdfPage(page);
+                y = 20;
+            }
+
+            var record = records[rowIdx];
+            var bg = rowIdx % 2 == 0 ? XBrushes.White : new XSolidBrush(XColor.FromArgb(240, 240, 245));
+            gfx.DrawRectangle(bg, new XRect(tableLeft, y, colWidths.Sum(), rowHeight));
+
+            string[] values =
+            {
+                record.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
+                Truncate(record.Actor ?? "", 18),
+                Truncate(record.Action ?? "", 18),
+                Truncate(record.ResourceType ?? "", 14),
+                Truncate(record.ResourceId ?? "", 18),
+                record.Success ? "Yes" : "No",
+                Truncate(record.Details ?? "", 16),
+                record.IpAddress ?? ""
+            };
+
+            x = tableLeft;
+            for (int i = 0; i < values.Length; i++)
+            {
+                var brush = i == 5
+                    ? (record.Success ? XBrushes.DarkGreen : XBrushes.DarkRed)
+                    : XBrushes.Black;
+                gfx.DrawString(values[i], cellFont, brush, new XRect(x + 2, y + 2, colWidths[i] - 4, rowHeight - 2), XStringFormats.TopLeft);
+                x += colWidths[i];
+            }
+
+            gfx.DrawLine(XPens.LightGray, tableLeft, y + rowHeight, tableLeft + colWidths.Sum(), y + rowHeight);
+            y += rowHeight;
+        }
+
+        using var ms = new MemoryStream();
+        document.Save(ms);
+        return ms.ToArray();
+    }
+
     private static string Truncate(string value, int maxLength)
         => value.Length <= maxLength ? value : value[..maxLength] + "…";
 }

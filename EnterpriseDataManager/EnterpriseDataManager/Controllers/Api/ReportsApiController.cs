@@ -47,6 +47,20 @@ public sealed class ReportsApiController : ApiBaseController
         return File(bytes, "application/pdf", filename);
     }
 
+    [HttpGet("audit-log/pdf")]
+    public async Task<IActionResult> AuditLogPdf(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken = default)
+    {
+        var fromDate = from ?? DateTimeOffset.UtcNow.AddYears(-1);
+        var toDate = to ?? DateTimeOffset.UtcNow;
+
+        var bytes = await _reportService.GenerateAuditLogPdfAsync(fromDate, toDate, cancellationToken);
+        var filename = $"audit-log-{fromDate:yyyyMMdd}-{toDate:yyyyMMdd}.pdf";
+        return File(bytes, "application/pdf", filename);
+    }
+
     [HttpGet("audit-log/excel")]
     public async Task<IActionResult> AuditLogExcel(
         [FromQuery] DateTimeOffset? from,
