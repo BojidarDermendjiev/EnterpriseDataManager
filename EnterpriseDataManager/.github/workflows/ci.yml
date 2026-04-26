@@ -1,0 +1,121 @@
+name: "CI — Build, Test, Security Scan"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore main project dependencies
+        run: dotnet restore EnterpriseDataManager/EnterPriceDataManager.csproj
+
+      - name: Restore integration test project dependencies
+        run: dotnet restore EnterpriseDataManager.IntegrationTests/EnterpriseDataManager.IntegrationTests.csproj
+
+      - name: Build solution (Release)
+        run: dotnet build --no-restore -c Release
+
+      - name: Run unit tests
+        run: |
+          dotnet test EnterpriseDataManager.UnitTests/ \
+            --no-build \
+            -c Release \
+            --collect:"XPlat Code Coverage" \
+            --logger trx \
+            --results-directory TestResults/unit
+        continue-on-error: true
+
+      - name: Run integration tests
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          # Testcontainers uses Docker daemon — available on ubuntu-latest GitHub runners
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: |
+          dotnet test EnterpriseDataManager.IntegrationTests/ \
+            --no-build \
+            -c Release \
+            --collect:"XPlat Code Coverage" \
+            --logger trx \
+            --results-directory TestResults/integration
+
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: TestResults/unit/**/*.trx
+          retention-days: 30
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: TestResults/integration/**/*.trx
+          retention-days: 30
+
+      - name: Upload code coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-coverage
+          path: |
+            TestResults/unit/**/coverage.cobertura.xml
+            TestResults/integration/**/coverage.cobertura.xml
+          retention-days: 30
+
+  docker-security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t edm:${{ github.sha }} .
+
+      - name: Run Trivy container image scan (CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "edm:${{ github.sha }}"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+
+      - name: Run Trivy filesystem secret scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          scanners: "secret"
+          exit-code: "1"
+
+      - name: Run Trivy SARIF scan (for GitHub Security tab)
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          image-ref: "edm:${{ github.sha }}"
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload Trivy SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
