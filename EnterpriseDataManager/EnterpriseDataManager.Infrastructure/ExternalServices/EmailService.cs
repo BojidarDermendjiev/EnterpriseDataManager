@@ -206,7 +206,7 @@ public class EmailService : IEmailService
 
             if (!string.IsNullOrEmpty(_options.Username))
             {
-                await client.AuthenticateAsync(_options.Username, _options.Password, cancellationToken);
+                await client.AuthenticateAsync(_options.Username, _options.Password ?? string.Empty, cancellationToken);
             }
 
             await client.DisconnectAsync(true, cancellationToken);
@@ -307,7 +307,7 @@ public class EmailService : IEmailService
 
                 if (!string.IsNullOrEmpty(_options.Username))
                 {
-                    await client.AuthenticateAsync(_options.Username, _options.Password, cancellationToken);
+                    await client.AuthenticateAsync(_options.Username, _options.Password ?? string.Empty, cancellationToken);
                 }
 
                 await client.SendAsync(message, cancellationToken);

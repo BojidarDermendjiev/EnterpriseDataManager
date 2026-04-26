@@ -10,7 +10,7 @@
     <PackageReference Include="AWSSDK.S3" Version="3.7.305.23" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Cronos" Version="0.8.4" />
-    <PackageReference Include="MailKit" Version="4.7.1" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />

@@ -21,7 +21,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         });
 
-        services.AddAutoMapper(assembly);
+        services.AddAutoMapper(cfg => cfg.AddMaps(assembly));
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddScoped<IArchivalAppService, ArchivalAppService>();
