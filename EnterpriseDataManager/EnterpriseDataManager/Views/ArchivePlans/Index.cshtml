@@ -76,14 +76,14 @@
             </div>
             <select name="status" class="form-control form-select" style="width: auto; min-width: 150px;">
                 <option value="">All Status</option>
-                <option value="active"   @(Model.Status == "active"   ? "selected" : "")>Active</option>
-                <option value="inactive" @(Model.Status == "inactive" ? "selected" : "")>Inactive</option>
+                <option value="active"   selected="@(Model.Status == "active"   ? "selected" : null)">Active</option>
+                <option value="inactive" selected="@(Model.Status == "inactive" ? "selected" : null)">Inactive</option>
             </select>
             <select name="securityLevel" class="form-control form-select" style="width: auto; min-width: 150px;">
                 <option value="">All Security Levels</option>
                 @foreach (var level in Enum.GetValues<SecurityLevel>())
                 {
-                    <option value="@level.ToString().ToLower()" @(Model.SecurityLevel == level.ToString().ToLower() ? "selected" : "")>@level</option>
+                    <option value="@level.ToString().ToLower()" selected="@(Model.SecurityLevel == level.ToString().ToLower() ? "selected" : null)">@level</option>
                 }
             </select>
             <button type="submit" class="btn btn-primary">Filter</button>
